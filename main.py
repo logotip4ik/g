@@ -1,7 +1,7 @@
 from __future__ import annotations, print_function
 from rich.console import Console
 from os import path, getcwd
-from sys import tracebacklimit
+import sys
 from argparse import ArgumentParser
 from subprocess import run, DEVNULL
 
@@ -31,6 +31,10 @@ class Git:
         console.log(f'trying to push to origin {self.curr_branch}...')
         self.__execute(f'git push origin {self.curr_branch}'.split(' '))
 
+    def __pull(self):
+        console.log(r"trying to pull from origin...")
+        self.__execute([*('git pull origin'.split(' ')), self.curr_branch])
+
     def check_git(self):
         console.log(r"[cyan]Checking for .git dir...[/cyan]")
         git_path = self.cwd + '/.git'
@@ -44,7 +48,12 @@ class Git:
         else:
             console.log(
                 r'[yellow bold]Does not have .git...[/yellow bold]')
-            self.init()
+            create_git_dir = str(
+                input('Do you want to auto create .git?(y/n)'))
+            if create_git_dir.lower().strip() in ('n', 'no', 'nope'):
+                self.init()
+            else:
+                exit(1)
 
     def __execute(self, command: list, capture=False) -> str | None:
         if capture:
@@ -61,10 +70,6 @@ class Git:
             'git branch --show-current'.split(' '), capture=True)
         return branch
 
-    def __pull(self):
-        console.log(r"trying to pull from origin...")
-        self.__execute([*('git pull origin'.split(' ')), self.curr_branch])
-
     def __add(self):
         console.log(r"adding everything...")
         self.__execute('git add -A .'.split(' '))
@@ -77,7 +82,7 @@ def read_args():
                         help="Type of command to execute (default: \"update\")",
                         default="update",
                         nargs='?',
-                        choices=["update", "fix", "init"],
+                        choices=["update", "fix", "init", "sync"],
                         type=str)
     parser.add_argument("-m", "--msg",
                         nargs="*",
@@ -97,13 +102,18 @@ def main():
     with console.status("[bold green]Working on tasks...", spinner="dqpb") as status:
         if args.command == 'init':
             git.init()
+        if args.command == 'sync':
+            git.pull()
+            console.log(
+                f'[bold green]Your {git.curr_branch} is in sync with remote![/bold green]')
+            return
         git.commit(msg, args.command)
         git.push()
     console.log('[bold green]Done![/bold green]')
 
 
 if __name__ == '__main__':
-    tracebacklimit = 0
+    sys.tracebacklimit = 0
     try:
         main()
     finally:
