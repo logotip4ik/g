@@ -4,8 +4,6 @@
 
 This command will help you to automate your git flow with ease
 
----
-
 ## Usage:
 
 ```
