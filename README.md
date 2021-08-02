@@ -7,10 +7,10 @@ This command will help you to automate your git flow with ease
 ## Usage:
 
 ```
-usage: main.py [-h] [-m [MSG [MSG ...]]] [--no-push] [{update,fix,init,sync}]
+usage: g.exe [-h] [-m [MSG [MSG ...]]] [--no-push] [--all-commits] [{update,fix,init,sync,status}]
 
 positional arguments:
-  {update,fix,init,sync}
+  {update,fix,init,sync,status}
                         Type of command to execute (default: "update")
 
 optional arguments:
@@ -18,6 +18,7 @@ optional arguments:
   -m [MSG [MSG ...]], --msg [MSG [MSG ...]]
                         Message with which the command will be executed (update: <your message>)
   --no-push             Don't push your code to remote
+  --all-commits         Print all your commits insted of only 2
 ```
 
 _example:_
