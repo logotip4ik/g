@@ -1,7 +1,7 @@
 from __future__ import annotations, print_function
 from rich.console import Console
+from rich.table import Table
 from os import path, getcwd
-import sys
 from argparse import ArgumentParser
 from subprocess import run, DEVNULL
 
@@ -34,6 +34,19 @@ class Git:
     def pull(self):
         console.log(r"pulling from origin...")
         self.__execute([*('git pull origin'.split(' ')), self.curr_branch])
+
+    def status(self):
+        console.log(r"grabbing info...")
+        commits = self.__execute(
+            ['git', 'log', '--pretty=%h - %s'], capture=True)
+        table = Table(title="Commits")
+
+        table.add_column("Hash", style="cyan")
+        table.add_column("Name")
+        for row in commits.split('\n')[0:-1]:
+            table.add_row(*row.split(' - '), )
+            # console.print(len(row), *row.split(' - '))
+        print(table.__str__)
 
     def check_git(self):
         console.log(r"[cyan]Checking for .git dir...[/cyan]")
@@ -82,7 +95,7 @@ def read_args():
                         help="Type of command to execute (default: \"update\")",
                         default="update",
                         nargs='?',
-                        choices=["update", "fix", "init", "sync"],
+                        choices=["update", "fix", "init", "sync", "status"],
                         type=str)
     parser.add_argument("-m", "--msg",
                         nargs="*",
@@ -106,10 +119,12 @@ def main():
     with console.status("[bold green]Working on tasks...", spinner="line"):
         if args.command == 'init':
             git.init()
-        if args.command == 'sync':
-            console.log(
-                f'[bold green]"{git.curr_branch}" is in sync with remote![/bold green]')
+        if args.command == "status":
+            git.status()
             return
+        if args.command == 'sync':
+            return console.log(
+                f'[bold green]"{git.curr_branch}" is in sync with remote![/bold green]')
         git.commit(msg, args.command)
         if not args.no_push:
             git.push()
