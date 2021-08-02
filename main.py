@@ -35,18 +35,22 @@ class Git:
         console.log(r"pulling from origin...")
         self.__execute([*('git pull origin'.split(' ')), self.curr_branch])
 
-    def status(self):
+    def status(self, all_commits=None):
         console.log(r"grabbing info...")
-        commits = self.__execute(
-            ['git', 'log', '--pretty=%h - %s'], capture=True)
+        get_all_commits_command = ['git', 'log', '--pretty=%h - %s']
+        if not all_commits:
+            get_all_commits_command.append('-2')
+        commits = self.__execute(get_all_commits_command, capture=True)
+        files_modifed = self.__execute(
+            "git status -s".split(' '), capture=True)
         table = Table(title="Commits")
 
         table.add_column("Hash", style="cyan")
         table.add_column("Name")
         for row in commits.split('\n')[0:-1]:
-            table.add_row(*row.split(' - '), )
-            # console.print(len(row), *row.split(' - '))
-        print(table.__str__)
+            table.add_row(*row.split(' - '))
+        console.print(files_modifed[0:-1], highlight=True)
+        console.print(table)
 
     def check_git(self):
         console.log(r"[cyan]Checking for .git dir...[/cyan]")
@@ -105,6 +109,10 @@ def read_args():
                         default=False,
                         action="store_true",
                         help="Don't push your code to remote")
+    parser.add_argument("--all-commits",
+                        default=False,
+                        action="store_true",
+                        help="Print all your commits insted of only 2")
     args, _ = parser.parse_known_args()
     return args
 
@@ -120,7 +128,7 @@ def main():
         if args.command == 'init':
             git.init()
         if args.command == "status":
-            git.status()
+            git.status(args.all_commits)
             return
         if args.command == 'sync':
             return console.log(
