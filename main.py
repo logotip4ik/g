@@ -31,7 +31,7 @@ class Git:
         console.log(f'trying to push to origin {self.curr_branch}...')
         self.__execute(f'git push origin {self.curr_branch}'.split(' '))
 
-    def __pull(self):
+    def pull(self):
         console.log(r"trying to pull from origin...")
         self.__execute([*('git pull origin'.split(' ')), self.curr_branch])
 
@@ -42,7 +42,7 @@ class Git:
         if self.git_exists:
             self.curr_branch = self.__get_curr_branch()
             try:
-                self.__pull()
+                self.pull()
             except:
                 pass
         else:
@@ -103,7 +103,7 @@ def main():
     if args.command != 'init':
         git.check_git()
     msg = None if not args.msg else ' '.join(args.msg)
-    with console.status("[bold green]Working on tasks...", spinner="dqpb") as status:
+    with console.status("[bold green]Working on tasks..."):
         if args.command == 'init':
             git.init()
         if args.command == 'sync':
