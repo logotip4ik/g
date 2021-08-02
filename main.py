@@ -28,11 +28,11 @@ class Git:
         return
 
     def push(self):
-        console.log(f'trying to push to origin {self.curr_branch}...')
+        console.log(f'pushing to origin {self.curr_branch}...')
         self.__execute(f'git push origin {self.curr_branch}'.split(' '))
 
     def pull(self):
-        console.log(r"trying to pull from origin...")
+        console.log(r"pulling from origin...")
         self.__execute([*('git pull origin'.split(' ')), self.curr_branch])
 
     def check_git(self):
@@ -40,7 +40,7 @@ class Git:
         git_path = self.cwd + '/.git'
         self.git_exists = path.isdir(git_path)
         if self.git_exists:
-            self.curr_branch = self.__get_curr_branch()
+            self.curr_branch = self.__get_curr_branch()[0:-1]
             try:
                 self.pull()
             except:
@@ -65,7 +65,7 @@ class Git:
         return cmd.stdout if capture else None
 
     def __get_curr_branch(self):
-        console.log(r"trying to grab current branch...")
+        console.log(r"grabing current branch...")
         branch = self.__execute(
             'git branch --show-current'.split(' '), capture=True)
         return branch
@@ -103,13 +103,12 @@ def main():
     if args.command != 'init':
         git.check_git()
     msg = None if not args.msg else ' '.join(args.msg)
-    with console.status("[bold green]Working on tasks..."):
+    with console.status("[bold green]Working on tasks...", spinner="line"):
         if args.command == 'init':
             git.init()
         if args.command == 'sync':
-            git.pull()
             console.log(
-                f'[bold green]Your {git.curr_branch} is in sync with remote![/bold green]')
+                f'[bold green]"{git.curr_branch}" is in sync with remote![/bold green]')
             return
         git.commit(msg, args.command)
         if not args.no_push:
