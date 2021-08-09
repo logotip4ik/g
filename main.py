@@ -6,7 +6,7 @@ from os import path, getcwd
 from argparse import ArgumentParser
 from subprocess import run, DEVNULL
 
-
+__version__ = "1.2.1"
 console = Console()
 
 
