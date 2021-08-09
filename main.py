@@ -1,4 +1,5 @@
 from __future__ import annotations, print_function
+from pathlib import Path
 from rich.console import Console
 from rich.table import Table
 from os import path, getcwd
@@ -109,7 +110,7 @@ def read_args():
                         default=False,
                         action="store_true",
                         help="Don't push your code to remote")
-    parser.add_argument("--all-commits",
+    parser.add_argument("-a", "--all-commits",
                         default=False,
                         action="store_true",
                         help="Print all your commits insted of only 2")
@@ -131,6 +132,7 @@ def main():
             git.status(args.all_commits)
             return
         if args.command == 'sync':
+            git.push()
             return console.log(
                 f'[bold green]"{git.curr_branch}" is in sync with remote![/bold green]')
         git.commit(msg, args.command)
