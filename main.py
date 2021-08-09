@@ -11,8 +11,9 @@ console = Console()
 
 
 class Git:
-    def __init__(self, cwd: str):
+    def __init__(self, cwd: str, include: list):
         self.cwd = cwd
+        self.include = include
         self.git_exists = False
         self.curr_branch = None
 
@@ -82,15 +83,17 @@ class Git:
                       stdout=DEVNULL, stderr=DEVNULL)
         return cmd.stdout if capture else None
 
-    def __get_curr_branch(self):
+    def __get_curr_branch(self) -> None:
         console.log(r"grabing current branch...")
         branch = self.__execute(
             'git branch --show-current'.split(' '), capture=True)
         return branch
 
-    def __add(self):
+    def __add(self) -> None:
         console.log(r"adding everything...")
-        self.__execute('git add -A .'.split(' '))
+        if self.include[0] == '.':
+            return self.__execute('git add -A .'.split(' '))
+        self.__execute(["git",  "add", " ".join(map(str, self.include))])
         return
 
 
@@ -114,6 +117,12 @@ def read_args():
                         default=False,
                         action="store_true",
                         help="Print all your commits insted of only 2")
+    parser.add_argument('-i', '--include',
+                        default=['.'],
+                        nargs='+',
+                        action="store",
+                        type=Path,
+                        help="What files will be included")
     args, _ = parser.parse_known_args()
     return args
 
@@ -121,7 +130,7 @@ def read_args():
 def main():
     cwd = getcwd()
     args = read_args()
-    git = Git(cwd)
+    git = Git(cwd, args.include)
     if args.command != 'init':
         git.check_git()
     msg = None if not args.msg else ' '.join(args.msg)
