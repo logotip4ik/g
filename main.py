@@ -123,6 +123,8 @@ def read_args():
                         action="store",
                         type=Path,
                         help="What files will be included")
+    parser.add_argument('-v', '--version', action='version',
+                        version='%(prog)s ' + __version__)
     args, _ = parser.parse_known_args()
     return args
 
