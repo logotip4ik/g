@@ -82,4 +82,4 @@ _example:_
 
 ### P.S.
 
-You can add compiled file to your path and use it like: `g -m "just for test"`
+You can add compiled file to your path env variable and use it like: `g -m just for test -i index.js`
