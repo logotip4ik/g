@@ -109,10 +109,10 @@ def read_args():
                         nargs="*",
                         help="Message with which the command will be executed (update: <your message>)",
                         type=str)
-    parser.add_argument("--no-push",
+    parser.add_argument("-p", "--push",
                         default=False,
                         action="store_true",
-                        help="Don't push your code to remote")
+                        help="Push your code to remote")
     parser.add_argument("-a", "--all-commits",
                         default=False,
                         action="store_true",
@@ -147,7 +147,7 @@ def main():
             return console.log(
                 f'[bold green]"{git.curr_branch}" is in sync with remote![/bold green]')
         git.commit(msg, args.command)
-        if not args.no_push:
+        if args.push:
             git.push()
     console.log('[bold green]Done![/bold green]')
 
