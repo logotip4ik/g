@@ -25,10 +25,10 @@ void error(char message[])
 }
 void print_help()
 {
-  fprintf(stdout, "usage: %s [{update,fix,init,sync,status}] [-h] [-m [MSG ...]] [-p] [-a] [-i INCLUDE [INCLUDE ...]] [-v]\n\
+  fprintf(stdout, "usage: %s [{update,fix,init,sync,log}] [-h] [-m [MSG ...]] [-p] [-a] [-i INCLUDE [INCLUDE ...]] [-v]\n\
   \n\
   positional arguments:\n\
-    {update,fix,init,sync,status}\n\
+    {update,fix,init,sync,log}\n\
                           Type of command to execute (default: \"update\")\n\
   \n\
   optional arguments:\n\
