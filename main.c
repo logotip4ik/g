@@ -186,7 +186,7 @@ void git_log(char *cwd, short *all_commits)
   strcat(command, cwd);
   strcat(command, " && git log --pretty=\"%h - \%s\"");
   if (*all_commits != 1)
-    strcat(command, " -2");
+    strcat(command, " -3");
 
   print_log("Latest commits:", 0);
   system(command);
