@@ -5,8 +5,9 @@
 #include <limits.h>
 #include <time.h>
 #include <ctype.h>
+#include <pthread.h>
 
-#define VERSION "1.0.0"
+#define VERSION "1.2.0"
 #define STR_BUFFER_SIZE 1024
 
 #define ANSI_COLOR_RED "\x1b[31m"
@@ -22,6 +23,20 @@ void error(char message[])
 {
   fprintf(stderr, "g: %s\n", message);
   exit(EXIT_FAILURE);
+}
+void *print_loader()
+{
+  while (1)
+  {
+    sleep(1);
+    fputs(".", stdout);
+    sleep(1);
+    fputs(".", stdout);
+    sleep(1);
+    fputs(".", stdout);
+    sleep(1);
+    fputs("\b\b\b   \b\b\b", stdout);
+  }
 }
 void print_help()
 {
@@ -55,12 +70,12 @@ void print_log(char *message, short error)
   // Converting current time to local time
   loc_time = localtime(&curtime);
 
+  strcat(buf, "\n");
   if (error)
     strftime(buf, LEN, ANSI_COLOR_RED "[%X] " ANSI_COLOR_RESET, loc_time);
   else
     strftime(buf, LEN, ANSI_COLOR_CYAN "[%X] " ANSI_COLOR_RESET, loc_time);
   strcat(buf, message);
-  strcat(buf, "\n");
   fputs(buf, stdout);
   if (error)
   {
@@ -160,7 +175,9 @@ void parse_args(short argc, char *argv[], char **command, char **include, char *
 #define MAX_BRANCH_NAME 128
 void git_get_current_branch(char *target)
 {
-  print_log("getting current branch...", 0);
+  pthread_t Thread;
+  print_log("getting current branch", 0);
+  pthread_create(&Thread, NULL, print_loader, NULL);
   FILE *pipe = popen("git branch --show-current", "r");
   if (!pipe)
     error("unable to grab current branch(cannot spawn new process)");
@@ -169,14 +186,18 @@ void git_get_current_branch(char *target)
     fgets(target, MAX_BRANCH_NAME, pipe);
 
   pclose(pipe);
+  pthread_cancel(Thread);
 }
 void git_log(char *cwd, short *all_commits)
 {
-  print_log("grabbing latest info...", 0);
+  pthread_t Thread;
+  print_log("grabbing latest info", 0);
+  pthread_create(&Thread, NULL, print_loader, NULL);
   char *command = calloc(COMMAND_SIZE, sizeof(char *));
   strcat(command, "cd ");
   strcat(command, cwd);
   strcat(command, " && git status -s");
+  pthread_cancel(Thread);
   print_log("Not staged files:", 0);
   system(command);
 
@@ -199,8 +220,10 @@ void git_log(char *cwd, short *all_commits)
 }
 void git_pull(char *cwd, char *current_branch)
 {
+  pthread_t Thread;
   char *message = calloc(MAX_BRANCH_NAME, sizeof(char));
-  sprintf(message, "pulling from origin "ANSI_COLOR_BOLD ANSI_COLOR_YELLOW"%s"ANSI_COLOR_RESET"...", current_branch);
+  sprintf(message, "pulling from origin "ANSI_COLOR_BOLD ANSI_COLOR_YELLOW"%s"ANSI_COLOR_RESET, current_branch);
+  pthread_create(&Thread, NULL, print_loader, NULL);
   print_log(message, 0);
   char *command = calloc(COMMAND_SIZE, sizeof(char *));
   strcat(command, "cd ");
@@ -213,13 +236,16 @@ void git_pull(char *cwd, char *current_branch)
   strcat(command, " > /dev/null 2>&1")
   #endif
 
+  pthread_cancel(Thread);
   system(command);
   free(command);
 }
 void git_push(char *cwd, char *current_branch)
 {
+  pthread_t Thread;
   char *message = calloc(MAX_BRANCH_NAME, sizeof(char));
-  sprintf(message, "pushing to origin "ANSI_COLOR_BOLD ANSI_COLOR_YELLOW"%s"ANSI_COLOR_RESET"...", current_branch);
+  sprintf(message, "pushing to origin "ANSI_COLOR_BOLD ANSI_COLOR_YELLOW"%s"ANSI_COLOR_RESET, current_branch);
+  pthread_create(&Thread, NULL, print_loader, NULL);
   print_log(message, 0);
   char *command = calloc(COMMAND_SIZE, sizeof(char *));
   strcat(command, "cd ");
@@ -233,12 +259,15 @@ void git_push(char *cwd, char *current_branch)
   #endif
   // strcat(command, " > /dev/null 2>&1");
 
+  pthread_cancel(Thread);
   system(command);
   free(command);
 }
 void git_commit(char *cwd, char *type, char *message)
 {
-  print_log("commiting...", 0);
+  pthread_t Thread;
+  print_log("commiting", 0);
+  pthread_create(&Thread, NULL, print_loader, NULL);
   char *command = calloc(COMMAND_SIZE, sizeof(char *));
   strcat(command, "cd ");
   strcat(command, cwd);
@@ -257,12 +286,15 @@ void git_commit(char *cwd, char *type, char *message)
   #endif
   // strcat(command, " > /dev/null 2>&1");
 
+  pthread_cancel(Thread);
   system(command);
   free(command);
 }
 void git_add(char *cwd, char *include)
 {
-  print_log("adding files...", 0);
+  pthread_t Thread;
+  print_log("adding files", 0);
+  pthread_create(&Thread, NULL, print_loader, NULL);
   char *command = calloc(COMMAND_SIZE, sizeof(char *));
   strcat(command, "cd ");
   strcat(command, cwd);
@@ -273,12 +305,15 @@ void git_add(char *cwd, char *include)
   else
     strcat(command, include);
 
+  pthread_cancel(Thread);
   system(command);
   free(command);
 }
 void git_check_dir(char *cwd)
 {
-  print_log("checking .git dir...", 0);
+  pthread_t Thread;
+  print_log("checking .git dir", 0);
+  pthread_create(&Thread, NULL, print_loader, NULL);
   char *command = calloc(COMMAND_SIZE, sizeof(char *));
   strcat(command, cwd);
 #if defined WIN32
@@ -292,11 +327,14 @@ void git_check_dir(char *cwd)
     free(command);
     print_log(ANSI_COLOR_RED ANSI_COLOR_BOLD ".git dir was not found" ANSI_COLOR_RESET, 1);
   }
+  pthread_cancel(Thread);
   free(command);
 }
 void git_init(char *cwd)
 {
-  print_log("initializing git...", 0);
+  pthread_t Thread;
+  print_log("initializing git", 0);
+  pthread_create(&Thread, NULL, print_loader, NULL);
   char *command = calloc(COMMAND_SIZE, sizeof(char *));
   strcat(command, "cd ");
   strcat(command, cwd);
@@ -306,6 +344,7 @@ void git_init(char *cwd)
   #else
   strcat(command, " > /dev/null 2>&1")
   #endif
+  pthread_cancel(Thread);
   system(command);
   free(command);
 }
