@@ -58,7 +58,7 @@ void print_help()
   exit(EXIT_SUCCESS);
 }
 #define LEN 150
-void print_log(char *message, short error)
+void print_log(char *message, short show_dots, short error)
 {
   char buf[LEN];
   time_t curtime;
@@ -69,17 +69,18 @@ void print_log(char *message, short error)
   // Converting current time to local time
   loc_time = localtime(&curtime);
 
-  // strcat(buf, "\n\n\n");
   if (error)
     strftime(buf, LEN, ANSI_COLOR_RED "[%X] " ANSI_COLOR_RESET, loc_time);
   else
     strftime(buf, LEN, ANSI_COLOR_CYAN "[%X] " ANSI_COLOR_RESET, loc_time);
   strcat(buf, message);
+  if (show_dots)
+    strcat(buf, ANSI_COLOR_YELLOW "..." ANSI_COLOR_RESET);
   strcat(buf, "\n");
   fputs(buf, stdout);
   if (error)
   {
-    print_log("exiting...", 0);
+    print_log("exiting", 1, 0);
     exit(EXIT_FAILURE);
   }
 }
@@ -175,7 +176,7 @@ void parse_args(short argc, char *argv[], char **command, char **include, char *
 #define MAX_BRANCH_NAME 128
 void git_get_current_branch(char *target)
 {
-  print_log("getting current branch", 0);
+  print_log("getting current branch", 1, 0);
   FILE *pipe = popen("git branch --show-current", "r");
   if (!pipe)
     error("unable to grab current branch(cannot spawn new process)");
@@ -187,12 +188,12 @@ void git_get_current_branch(char *target)
 }
 void git_log(char *cwd, short *all_commits)
 {
-  print_log("grabbing latest info", 0);
+  print_log("grabbing latest info", 1, 0);
   char *command = calloc(COMMAND_SIZE, sizeof(char *));
   strcat(command, "cd ");
   strcat(command, cwd);
   strcat(command, " && git status -s");
-  print_log("Not staged files:", 0);
+  print_log("Not staged files:", 0, 0);
   system(command);
 
   memset(command, 0, sizeof(char));
@@ -203,7 +204,7 @@ void git_log(char *cwd, short *all_commits)
   if (*all_commits != 1)
     strcat(command, " -3");
 
-  print_log("Latest commits:", 0);
+  print_log("Latest commits:", 0, 0);
   system(command);
   free(command);
 }
@@ -211,7 +212,7 @@ void git_pull(char *cwd, char *current_branch)
 {
   char *message = calloc(MAX_BRANCH_NAME, sizeof(char));
   sprintf(message, "pulling from origin "ANSI_COLOR_BOLD ANSI_COLOR_YELLOW"%s"ANSI_COLOR_RESET, current_branch);
-  print_log(message, 0);
+  print_log(message, 1, 0);
   char *command = calloc(COMMAND_SIZE, sizeof(char *));
   strcat(command, "cd ");
   strcat(command, cwd);
@@ -230,7 +231,7 @@ void git_push(char *cwd, char *current_branch)
 {
   char *message = calloc(MAX_BRANCH_NAME, sizeof(char));
   sprintf(message, "pushing to origin "ANSI_COLOR_BOLD ANSI_COLOR_YELLOW"%s"ANSI_COLOR_RESET, current_branch);
-  print_log(message, 0);
+  print_log(message, 1, 0);
   char *command = calloc(COMMAND_SIZE, sizeof(char *));
   strcat(command, "cd ");
   strcat(command, cwd);
@@ -248,7 +249,7 @@ void git_push(char *cwd, char *current_branch)
 }
 void git_commit(char *cwd, char *type, char *message)
 {
-  print_log("commiting", 0);
+  print_log("commiting", 1, 0);
   char *command = calloc(COMMAND_SIZE, sizeof(char *));
   strcat(command, "cd ");
   strcat(command, cwd);
@@ -272,7 +273,7 @@ void git_commit(char *cwd, char *type, char *message)
 }
 void git_add(char *cwd, char *include)
 {
-  print_log("adding files", 0);
+  print_log("adding files", 1, 0);
   char *command = calloc(COMMAND_SIZE, sizeof(char *));
   strcat(command, "cd ");
   strcat(command, cwd);
@@ -288,7 +289,7 @@ void git_add(char *cwd, char *include)
 }
 void git_check_dir(char *cwd)
 {
-  print_log("checking .git dir", 0);
+  print_log("checking .git dir", 1, 0);
   char *command = calloc(COMMAND_SIZE, sizeof(char *));
   strcat(command, cwd);
 #if defined WIN32
@@ -300,13 +301,13 @@ void git_check_dir(char *cwd)
   if (access(command, F_OK) == -1)
   {
     free(command);
-    print_log(ANSI_COLOR_RED ANSI_COLOR_BOLD ".git dir was not found" ANSI_COLOR_RESET, 1);
+    print_log(ANSI_COLOR_RED ANSI_COLOR_BOLD ".git dir was not found" ANSI_COLOR_RESET, 0, 1);
   }
   free(command);
 }
 void git_init(char *cwd)
 {
-  print_log("initializing git", 0);
+  print_log("initializing git", 1, 0);
   char *command = calloc(COMMAND_SIZE, sizeof(char *));
   strcat(command, "cd ");
   strcat(command, cwd);
@@ -360,7 +361,7 @@ int main(int argc, char *argv[])
   if (push || strcmp(command, "sync") == 0)
     git_push(cwd, current_branch);
 
-  print_log(ANSI_COLOR_BOLD ANSI_COLOR_GREEN "Done!" ANSI_COLOR_RESET, 0);
+  print_log(ANSI_COLOR_BOLD ANSI_COLOR_GREEN "Done!" ANSI_COLOR_RESET, 0, 0);
 
   // ! clean up
   free(include);
