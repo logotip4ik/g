@@ -2,11 +2,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <limits.h>
 #include <time.h>
 #include <ctype.h>
 
-#define VERSION "1.2.0"
+#define VERSION "1.4.0"
 #define STR_BUFFER_SIZE 1024
 
 #define ANSI_COLOR_RED "\x1b[31m"
@@ -85,15 +84,15 @@ void print_log(char *message, short show_dots, short error)
   }
 }
 
-void get_message(short argc, char *argv[], short from, char **message)
+void get_message(short argc, char *argv[], short from, char *message)
 {
   for (short i = from; i < argc; i++)
   {
     if (argv[i][0] == '-')
       break;
 
-    strcat(*message, argv[i]);
-    strcat(*message, " ");
+    strcat(message, argv[i]);
+    strcat(message, " ");
   }
 }
 
@@ -158,12 +157,12 @@ void parse_args(short argc, char *argv[], char **command, char **include, char *
       else if (strcmp(flag, all_commits_flags[0]) == 0 || strcmp(flag, all_commits_flags[1]) == 0)
         *all_commits = 1;
       else if (strcmp(flag, message_flags[0]) == 0 || strcmp(flag, message_flags[1]) == 0)
-        get_message(argc, argv, i + 1, message);
+        get_message(argc, argv, i + 1, *message);
       else if (strcmp(flag, include_flags[0]) == 0 || strcmp(flag, include_flags[1]) == 0)
-        get_message(argc, argv, i + 1, include);
+        get_message(argc, argv, i + 1, *include);
       else if (strcmp(flag, version_flags[0]) == 0 || strcmp(flag, version_flags[1]) == 0)
       {
-        printf("%s: %s", __FILE__, VERSION);
+        printf("g.exe: %s", VERSION);
         exit(EXIT_SUCCESS);
       }
       else if (strcmp(flag, help_flags[0]) == 0 || strcmp(flag, help_flags[1]) == 0)
@@ -186,71 +185,70 @@ void git_get_current_branch(char *target)
 
   pclose(pipe);
 }
-void git_log(char *cwd, short *all_commits)
+void git_log(char *command, char *cwd, short *all_commits)
 {
   print_log("grabbing latest info", 1, 0);
-  char *command = calloc(COMMAND_SIZE, sizeof(char *));
+
   strcat(command, "cd ");
   strcat(command, cwd);
   strcat(command, " && git status -s");
   print_log("Not staged files:", 0, 0);
   system(command);
 
-  memset(command, 0, sizeof(char));
+  memset(command, 0, COMMAND_SIZE);
 
   strcat(command, "cd ");
   strcat(command, cwd);
-  strcat(command, " && git log --pretty=\"%h - \%s\"");
+  strcat(command, " && git log --pretty=\"%h - %s\"");
   if (*all_commits != 1)
     strcat(command, " -3");
 
   print_log("Latest commits:", 0, 0);
   system(command);
-  free(command);
+  memset(command, 0, COMMAND_SIZE);
 }
-void git_pull(char *cwd, char *current_branch)
+void git_pull(char *command, char *cwd, char *current_branch)
 {
   char *message = calloc(MAX_BRANCH_NAME, sizeof(char));
-  sprintf(message, "pulling from origin "ANSI_COLOR_BOLD ANSI_COLOR_YELLOW"%s"ANSI_COLOR_RESET, current_branch);
+  sprintf(message, "pulling from origin " ANSI_COLOR_BOLD ANSI_COLOR_YELLOW "%s" ANSI_COLOR_RESET, current_branch);
   print_log(message, 1, 0);
-  char *command = calloc(COMMAND_SIZE, sizeof(char *));
+
   strcat(command, "cd ");
   strcat(command, cwd);
   strcat(command, " && git pull origin ");
   strcat(command, current_branch);
-  #if defined WIN32
+#if defined WIN32
   strcat(command, " > NUL 2>&1");
-  #else
-  strcat(command, " > /dev/null 2>&1")
-  #endif
+#else
+  strcat(command, " > /dev/null 2>&1");
+#endif
 
   system(command);
-  free(command);
+  memset(command, 0, COMMAND_SIZE);
 }
-void git_push(char *cwd, char *current_branch)
+void git_push(char *command, char *cwd, char *current_branch)
 {
   char *message = calloc(MAX_BRANCH_NAME, sizeof(char));
-  sprintf(message, "pushing to origin "ANSI_COLOR_BOLD ANSI_COLOR_YELLOW"%s"ANSI_COLOR_RESET, current_branch);
+  sprintf(message, "pushing to origin " ANSI_COLOR_BOLD ANSI_COLOR_YELLOW "%s" ANSI_COLOR_RESET, current_branch);
   print_log(message, 1, 0);
-  char *command = calloc(COMMAND_SIZE, sizeof(char *));
+
   strcat(command, "cd ");
   strcat(command, cwd);
   strcat(command, " && git push origin ");
   strcat(command, current_branch);
-  #if defined WIN32
+#if defined WIN32
   strcat(command, " > NUL 2>&1");
-  #else
-  strcat(command, " > /dev/null 2>&1")
-  #endif
+#else
+  strcat(command, " > /dev/null 2>&1");
+#endif
   // strcat(command, " > /dev/null 2>&1");
 
   system(command);
-  free(command);
+  memset(command, 0, COMMAND_SIZE);
 }
-void git_commit(char *cwd, char *type, char *message)
+void git_commit(char *command, char *cwd, char *type, char *message)
 {
   print_log("commiting", 1, 0);
-  char *command = calloc(COMMAND_SIZE, sizeof(char *));
   strcat(command, "cd ");
   strcat(command, cwd);
   strcat(command, " && git commit -m \"");
@@ -261,20 +259,19 @@ void git_commit(char *cwd, char *type, char *message)
     strcat(command, message);
   }
   strcat(command, "\"");
-  #if defined WIN32
+#if defined WIN32
   strcat(command, " > NUL 2>&1");
-  #else
-  strcat(command, " > /dev/null 2>&1")
-  #endif
+#else
+  strcat(command, " > /dev/null 2>&1");
+#endif
   // strcat(command, " > /dev/null 2>&1");
 
   system(command);
-  free(command);
+  memset(command, 0, COMMAND_SIZE);
 }
-void git_add(char *cwd, char *include)
+void git_add(char *command, char *cwd, char *include)
 {
   print_log("adding files", 1, 0);
-  char *command = calloc(COMMAND_SIZE, sizeof(char *));
   strcat(command, "cd ");
   strcat(command, cwd);
   strcat(command, " && git add ");
@@ -285,12 +282,11 @@ void git_add(char *cwd, char *include)
     strcat(command, include);
 
   system(command);
-  free(command);
+  memset(command, 0, COMMAND_SIZE);
 }
-void git_check_dir(char *cwd)
+void git_check_dir(char *command, char *cwd)
 {
   print_log("checking .git dir", 1, 0);
-  char *command = calloc(COMMAND_SIZE, sizeof(char *));
   strcat(command, cwd);
 #if defined WIN32
   strcat(command, "\\");
@@ -300,70 +296,72 @@ void git_check_dir(char *cwd)
   strcat(command, ".git");
   if (access(command, F_OK) == -1)
   {
-    free(command);
+    memset(command, 0, COMMAND_SIZE);
     print_log(ANSI_COLOR_RED ANSI_COLOR_BOLD ".git dir was not found" ANSI_COLOR_RESET, 0, 1);
   }
-  free(command);
+  memset(command, 0, COMMAND_SIZE);
 }
-void git_init(char *cwd)
+void git_init(char *command, char *cwd)
 {
   print_log("initializing git", 1, 0);
-  char *command = calloc(COMMAND_SIZE, sizeof(char *));
   strcat(command, "cd ");
   strcat(command, cwd);
   strcat(command, " && git init");
-  #if defined WIN32
+#if defined WIN32
   strcat(command, " > NUL 2>&1");
-  #else
-  strcat(command, " > /dev/null 2>&1")
-  #endif
+#else
+  strcat(command, " > /dev/null 2>&1");
+#endif
   system(command);
-  free(command);
+  memset(command, 0, COMMAND_SIZE);
 }
 
 int main(int argc, char *argv[])
 {
   // ! setting up all the vars
-  char cwd[PATH_MAX];
+  char cwd[256];
   getcwd(cwd, sizeof cwd);
   char *current_branch = calloc(MAX_BRANCH_NAME, sizeof(char));
+  char *system_command = calloc(COMMAND_SIZE, sizeof(char));
 
-  char *command = "update";
-  char *include = calloc(STR_BUFFER_SIZE, sizeof(char *));
-  char *message = calloc(STR_BUFFER_SIZE, sizeof(char *));
+  char *command_type = "update";
+  char *include = calloc(STR_BUFFER_SIZE, sizeof(char));
+  char *message = calloc(STR_BUFFER_SIZE, sizeof(char));
   short push, all_commits = 0;
 
   // ! parsign args
-  parse_args(argc, argv, &command, &include, &message, &push, &all_commits);
+  parse_args(argc, argv, &command_type, &include, &message, &push, &all_commits);
 
   // Hides cursor, but not in cmd.exe
   fputs("\e[?25l", stdout);
 
   // ! main logic
-  if (strcmp(command, "init") == 0)
-    git_init(cwd);
+  if (strcmp(command_type, "init") == 0)
+    git_init(system_command, cwd);
   else
-    git_check_dir(cwd);
+    git_check_dir(system_command, cwd);
 
-  if (strcmp(command, "sync") != 0 && strcmp(command, "log") != 0)
+  if (strcmp(command_type, "sync") != 0 && strcmp(command_type, "log") != 0)
   {
-    git_add(cwd, include);
-    git_commit(cwd, command, message);
+    git_add(system_command, cwd, include);
+    git_commit(system_command, cwd, command_type, message);
   }
 
   git_get_current_branch(current_branch);
   get_sub_string(current_branch, current_branch, 0, strlen(current_branch) - 2);
-  git_pull(cwd, current_branch);
+  git_pull(system_command, cwd, current_branch);
 
-  if (strcmp(command, "log") == 0)
-    git_log(cwd, &all_commits);
+  if (strcmp(command_type, "log") == 0)
+    git_log(system_command, cwd, &all_commits);
 
-  if (push || strcmp(command, "sync") == 0)
-    git_push(cwd, current_branch);
+  if (push || strcmp(command_type, "sync") == 0)
+    git_push(system_command, cwd, current_branch);
 
   print_log(ANSI_COLOR_BOLD ANSI_COLOR_GREEN "Done!" ANSI_COLOR_RESET, 0, 0);
 
   // ! clean up
+  free(current_branch);
+  free(system_command);
   free(include);
   free(message);
 
