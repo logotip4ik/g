@@ -5,7 +5,7 @@
 #include <time.h>
 #include <ctype.h>
 
-#define VERSION "1.4.0"
+#define VERSION "1.4.1"
 #define STR_BUFFER_SIZE 1024
 
 #define ANSI_COLOR_RED "\x1b[31m"
@@ -333,7 +333,7 @@ int main(int argc, char *argv[])
   parse_args(argc, argv, &command_type, &include, &message, &push, &all_commits);
 
   // Hides cursor, but not in cmd.exe
-  fputs("\e[?25l", stdout);
+  fputs("\033[?25l", stdout);
 
   // ! main logic
   if (strcmp(command_type, "init") == 0)
@@ -366,7 +366,7 @@ int main(int argc, char *argv[])
   free(message);
 
   // Put the cursor back
-  fputs("\e[?25h", stdout);
+  fputs("\033[?25h", stdout);
 
   return EXIT_SUCCESS;
 }
