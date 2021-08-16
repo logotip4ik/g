@@ -5,14 +5,12 @@
 #include <time.h>
 #include <ctype.h>
 
-#define VERSION "1.4.1"
+#define VERSION "1.4.3"
 #define STR_BUFFER_SIZE 1024
 
 #define ANSI_COLOR_RED "\x1b[31m"
 #define ANSI_COLOR_GREEN "\x1b[32m"
 #define ANSI_COLOR_YELLOW "\x1b[33m"
-#define ANSI_COLOR_BLUE "\x1b[34m"
-#define ANSI_COLOR_MAGENTA "\x1b[35m"
 #define ANSI_COLOR_CYAN "\x1b[36m"
 #define ANSI_COLOR_BOLD "\x1b[1m"
 #define ANSI_COLOR_RESET "\x1b[0m"
@@ -21,20 +19,6 @@ void error(char message[])
 {
   fprintf(stderr, "g: %s\n", message);
   exit(EXIT_FAILURE);
-}
-void *print_loader()
-{
-  while (1)
-  {
-    sleep(1);
-    fputs(".", stdout);
-    sleep(1);
-    fputs(".", stdout);
-    sleep(1);
-    fputs(".", stdout);
-    sleep(1);
-    fputs("\b\b\b   \b\b\b", stdout);
-  }
 }
 void print_help()
 {
@@ -118,10 +102,9 @@ void get_sub_string(char *source, char *target, short from, short to)
 short array_includes(char *array[], short size, char *string)
 {
   for (short i = 0; i < size; ++i)
-  {
     if (strcmp(array[i], string) == 0)
       return 0;
-  }
+
   return 1;
 }
 
@@ -217,7 +200,7 @@ void git_pull(char *command, char *cwd, char *current_branch)
   strcat(command, cwd);
   strcat(command, " && git pull origin ");
   strcat(command, current_branch);
-#if defined WIN32
+#if defined _WIN32
   strcat(command, " > NUL 2>&1");
 #else
   strcat(command, " > /dev/null 2>&1");
@@ -236,7 +219,7 @@ void git_push(char *command, char *cwd, char *current_branch)
   strcat(command, cwd);
   strcat(command, " && git push origin ");
   strcat(command, current_branch);
-#if defined WIN32
+#if defined _WIN32
   strcat(command, " > NUL 2>&1");
 #else
   strcat(command, " > /dev/null 2>&1");
@@ -259,7 +242,7 @@ void git_commit(char *command, char *cwd, char *type, char *message)
     strcat(command, message);
   }
   strcat(command, "\"");
-#if defined WIN32
+#if defined _WIN32
   strcat(command, " > NUL 2>&1");
 #else
   strcat(command, " > /dev/null 2>&1");
@@ -288,7 +271,7 @@ void git_check_dir(char *command, char *cwd)
 {
   print_log("checking .git dir", 1, 0);
   strcat(command, cwd);
-#if defined WIN32
+#if defined _WIN32
   strcat(command, "\\");
 #else
   strcat(command, "/");
@@ -307,7 +290,7 @@ void git_init(char *command, char *cwd)
   strcat(command, "cd ");
   strcat(command, cwd);
   strcat(command, " && git init");
-#if defined WIN32
+#if defined _WIN32
   strcat(command, " > NUL 2>&1");
 #else
   strcat(command, " > /dev/null 2>&1");
