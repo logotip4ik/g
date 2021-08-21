@@ -332,13 +332,15 @@ int main(int argc, char *argv[])
 
   git_get_current_branch(current_branch);
   get_sub_string(current_branch, current_branch, 0, strlen(current_branch) - 2);
-  git_pull(system_command, cwd, current_branch);
 
   if (strcmp(command_type, "log") == 0)
     git_log(system_command, cwd, &all_commits);
 
-  if (push || strcmp(command_type, "sync") == 0)
+  if (push || strcmp(command_type, "sync") == 0) 
+  {
+    git_pull(system_command, cwd, current_branch);
     git_push(system_command, cwd, current_branch);
+  }
 
   print_log(ANSI_COLOR_BOLD ANSI_COLOR_GREEN "Done!" ANSI_COLOR_RESET, 0, 0);
 
