@@ -5,7 +5,7 @@
 #include <time.h>
 #include <ctype.h>
 
-#define VERSION "1.5.0"
+#define VERSION "1.5.1"
 #define STR_BUFFER_SIZE 1024
 
 #define ANSI_COLOR_RED "\x1b[31m"
@@ -324,14 +324,15 @@ int main(int argc, char *argv[])
   else
     git_check_dir(system_command, cwd);
 
+  git_get_current_branch(current_branch);
+  get_sub_string(current_branch, current_branch, 0, strlen(current_branch) - 2);
+
   if (strcmp(command_type, "sync") != 0 && strcmp(command_type, "log") != 0)
   {
     git_add(system_command, cwd, include);
     git_commit(system_command, cwd, command_type, message);
   }
 
-  git_get_current_branch(current_branch);
-  get_sub_string(current_branch, current_branch, 0, strlen(current_branch) - 2);
 
   if (strcmp(command_type, "log") == 0)
     git_log(system_command, cwd, &all_commits);
