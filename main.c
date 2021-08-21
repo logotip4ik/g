@@ -5,7 +5,7 @@
 #include <time.h>
 #include <ctype.h>
 
-#define VERSION "1.4.3"
+#define VERSION "1.5.0"
 #define STR_BUFFER_SIZE 1024
 
 #define ANSI_COLOR_RED "\x1b[31m"
