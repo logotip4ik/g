@@ -63,7 +63,7 @@ _example:_
 
   ```
   git add -A .
-  git commit -m "fix: <your message passed via -m flag>"
+  git commit -m "update: <your message passed via -m flag>"
   git pull origin <your current branch>
   git push origin <your current branch>
   ```
