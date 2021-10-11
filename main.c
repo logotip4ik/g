@@ -5,7 +5,7 @@
 #include <time.h>
 #include <ctype.h>
 
-#define VERSION "1.5.1"
+#define VERSION "1.5.2"
 #define STR_BUFFER_SIZE 1024
 
 #define ANSI_COLOR_RED "\x1b[31m"
@@ -269,6 +269,8 @@ void git_add(char *command, char *cwd, char *include)
 }
 void git_check_dir(char *command, char *cwd)
 {
+  // TODO: if not found in current dir, check in parent, and if there also no dir, check again
+  // parent and so on
   print_log("checking .git dir", 1, 0);
   strcat(command, cwd);
 #if defined _WIN32
@@ -301,6 +303,8 @@ void git_init(char *command, char *cwd)
 
 int main(int argc, char *argv[])
 {
+  if (argc < 2) print_help();
+
   // ! setting up all the vars
   char cwd[256];
   getcwd(cwd, sizeof cwd);
