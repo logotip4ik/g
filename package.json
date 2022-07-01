@@ -1,0 +1,12 @@
+{
+  "name": "g",
+  "author": {
+    "name": "Bogdan Kostyuk",
+    "url": "https://bogdankostyuk.xyz"
+  },
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "chalk": "^5.0.1"
+  }
+}
