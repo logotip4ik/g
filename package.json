@@ -10,5 +10,8 @@
   "type": "module",
   "dependencies": {
     "chalk": "^5.0.1"
+  },
+  "devDependencies": {
+    "xv": "^1.1.1"
   }
 }
