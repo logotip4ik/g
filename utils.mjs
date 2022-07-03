@@ -79,6 +79,23 @@ export function normalizeOptions(args) {
 }
 
 /**
+ * Checks for error in string, if finds logs error else will do nothing
+ * @param {string} string
+ * @returns {boolean} weather stdout has error or no
+ */
+export function checkStdoutForError(string) {
+  let hasError = false;
+
+  if (string.includes("fatal")) {
+    hasError = true;
+
+    printError(string);
+  }
+
+  return hasError;
+}
+
+/**
  * Prints error-like message into console
  * @param {string[]} message
  */
