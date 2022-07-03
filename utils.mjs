@@ -4,7 +4,7 @@ import { options, commands, defaultCommand } from "./constants.mjs";
 
 /**
  * @param {NodeJS.Process.argv} argv
- * @returns {{string, object<string>:string}}
+ * @returns {[string, {string: string}]}
  */
 export function parseArgs(argv) {
   const _executable = argv[0];
