@@ -4,6 +4,9 @@
     "name": "Bogdan Kostyuk",
     "url": "https://bogdankostyuk.xyz"
   },
+  "scripts": {
+    "test": "xv tests"
+  },
   "main": "index.mjs",
   "version": "1.0.0",
   "license": "MIT",
