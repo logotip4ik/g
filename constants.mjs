@@ -11,6 +11,7 @@ export const commands = {
 export const defaultCommand = commands.UPDATE;
 
 // NOTE: each option should have to names
+// NOTE: FIRST WORD SHOULD BE SHORT VERSION OF THE OPTION
 export const options = new Set([
   "m",
   "message",
@@ -24,3 +25,5 @@ export const options = new Set([
   "i",
   "include",
 ]);
+
+export const currentBranchCommand = "git branch --show-current";
