@@ -54,6 +54,31 @@ function getText(array, startI) {
 }
 
 /**
+ * Creates a normalized options object (ex. { m: "help me" } => { message: "help me" })
+ * @param {object} args
+ */
+export function normalizeOptions(args) {
+  const optionsArray = Array.from(options);
+
+  const mapper = {};
+  const result = {};
+
+  let prevKey = "";
+  for (let i = 0; i < optionsArray.length; i++) {
+    if (i % 2 === 1) mapper[prevKey] = optionsArray[i];
+    else prevKey = optionsArray[i];
+  }
+
+  for (const key of Object.keys(args)) {
+    const normalizedKey = mapper[key] || key;
+
+    result[normalizedKey] = args[key];
+  }
+
+  return result;
+}
+
+/**
  * Prints error-like message into console
  * @param {string[]} message
  */
