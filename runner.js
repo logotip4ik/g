@@ -33,9 +33,10 @@ export async function createInitWithOptions(options) {
 
 /**
  * @param {Options} options
+ * @param {string} commitType
  * @returns {Promise<void>}
  */
-export async function createUpdateWithOptions(options) {
+export async function createUpdateWithOptionsAndType(options, commitType) {
   const currentBrach = (await $`git branch --show-current`).toString().trim();
 
   if (options.pull) {
@@ -48,8 +49,8 @@ export async function createUpdateWithOptions(options) {
   else await $`git add ${options.include}`;
 
   if (!options.message || options.message === true)
-    await $`git commit -m "update"`;
-  else await $`git commit -m "update: ${options.message}"`;
+    await $`git commit -m "${commitType}"`;
+  else await $`git commit -m "${commitType}: ${options.message}"`;
 
   if (options.push) {
     const branch =
