@@ -7,6 +7,9 @@
   "scripts": {
     "test": "xv tests"
   },
+  "bin": {
+    "g": "index.mjs"
+  },
   "main": "index.mjs",
   "version": "1.0.0",
   "license": "MIT",
