@@ -110,6 +110,52 @@ export async function createLogWithOptions(options) {
 }
 
 /**
+ * @param {Options} options
+ * @returns {Promise<void>}
+ */
+export async function createSyncWithOptions(_options) {
+  await createPullWithOptions();
+
+  await createPushWithOptions();
+}
+
+/**
+ * @param {Options} _options
+ * @returns {Promise<void>}
+ */
+export async function createPullWithOptions(_options) {
+  let origin = "";
+  let branch = "";
+
+  // g pull
+  if (
+    (!process.argv[3] || process.argv[3].startsWith("-")) &&
+    (!process.argv[4] || process.argv[4].startsWith("-"))
+  ) {
+    origin = "origin";
+    branch = await $`git branch --show-current`;
+  }
+  // g pull v5
+  else if (
+    !process.argv[3].startsWith("-") &&
+    (!process.argv[4] || process.argv[4].startsWith("-"))
+  ) {
+    origin = "origin";
+    branch = process.argv[3];
+  }
+  // g push master v5
+  else if (
+    !process.argv[3].startsWith("-") &&
+    !process.argv[4].startsWith("-")
+  ) {
+    origin = process.argv[3].trim();
+    branch = process.argv[4].trim();
+  }
+
+  await $`echo 'git pull ${origin} ${branch}'`;
+}
+
+/**
  * @param {Options} _options
  * @returns {Promise<void>}
  */
