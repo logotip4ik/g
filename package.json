@@ -1,15 +1,12 @@
 {
-  "name": "@logotip4ik/g",
+  "name": "@logotip4ik_/g",
   "description": "Script which will help you automate git flow",
   "keywords": [
     "git",
     "cli",
     "zx"
   ],
-  "author": {
-    "name": "Bogdan Kostyuk",
-    "url": "https://bogdankostyuk.xyz"
-  },
+  "author": "Bogdan Kostyuk <bogdankostyuk12@gmail.com>",
   "scripts": {
     "test": "xv tests"
   },
@@ -17,7 +14,7 @@
     "g": "index.mjs"
   },
   "main": "index.mjs",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "license": "MIT",
   "type": "module",
   "repository": {
