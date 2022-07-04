@@ -106,7 +106,7 @@ export async function createLogWithOptions(options) {
 
   await $`git status -s`;
 
-  await $`git log --pretty="%h - %s" -5`;
+  await $`git log --pretty="%h - %an - %s" -5`;
 }
 
 /**
