@@ -72,7 +72,8 @@ export function normalizeOptions(args) {
   for (const key of Object.keys(args)) {
     const normalizedKey = mapper[key] || key;
 
-    result[normalizedKey] = args[key];
+    result[normalizedKey] =
+      typeof args[key] === "string" ? args[key].trim() : args[key];
   }
 
   return result;
@@ -100,11 +101,9 @@ export function checkStdoutForError(string) {
  * @param {string[]} message
  */
 export function printError(...message) {
-  const currentTime = getCurrentTime();
+  const m = " " + message.join(" ") + " ";
 
-  const time = chalk.blueBright(`[${currentTime}]`);
-
-  console.log(`${time} ${chalk.red(message.join(" "))}`);
+  console.log(`$ ${chalk.bgRedBright(m)}`);
 }
 
 /**
@@ -112,11 +111,9 @@ export function printError(...message) {
  * @param {string[]} message
  */
 export function printWarning(...message) {
-  const currentTime = getCurrentTime();
+  const m = " " + message.join(" ") + " ";
 
-  const time = chalk.blueBright(`[${currentTime}]`);
-
-  console.log(`${time} ${chalk.yellow(message.join(" "))}`);
+  console.log(`$ ${chalk.bgYellowBright(m)}`);
 }
 
 export function getCurrentTime() {
