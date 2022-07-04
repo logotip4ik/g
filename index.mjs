@@ -23,10 +23,17 @@ if (ARGV.length <= 2) {
 const [command, options] = parseArgs(ARGV);
 const normalizedOptions = normalizeOptions(options);
 
-if (command === commands.INIT) createInitWithOptions(normalizedOptions);
-if (command === commands.UPDATE) createUpdateWithOptions(normalizedOptions);
-if (command === commands.FIX) createFixWithOptions(normalizedOptions);
-if (command === commands.LOG) createLogWithOptions(normalizedOptions);
-if (command === commands.SYNC) createSyncWithOptions(normalizedOptions);
-if (command === commands.PUSH) createPushWithOptions(normalizedOptions);
-if (command === commands.PULL) createPullWithOptions(normalizedOptions);
+if (command === commands.INIT)
+  await createInitWithOptions(normalizedOptions).catch(() => process.exit());
+if (command === commands.UPDATE)
+  await createUpdateWithOptions(normalizedOptions).catch(() => process.exit());
+if (command === commands.FIX)
+  await createFixWithOptions(normalizedOptions).catch(() => process.exit());
+if (command === commands.LOG)
+  await createLogWithOptions(normalizedOptions).catch(() => process.exit());
+if (command === commands.SYNC)
+  await createSyncWithOptions(normalizedOptions).catch(() => process.exit());
+if (command === commands.PUSH)
+  await createPushWithOptions(normalizedOptions).catch(() => process.exit());
+if (command === commands.PULL)
+  await createPullWithOptions(normalizedOptions).catch(() => process.exit());
