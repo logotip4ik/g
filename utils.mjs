@@ -1,6 +1,8 @@
+import fs from "fs";
 import chalk from "chalk";
 
 import { options, commands, defaultCommand } from "./constants.mjs";
+import path from "path";
 
 /**
  * @param {NodeJS.Process.argv} argv
@@ -116,8 +118,14 @@ export function printWarning(...message) {
   console.log(`$ ${chalk.yellowBright(m)}`);
 }
 
-export function getCurrentTime() {
-  const now = new Date();
+/**
+ * @returns {string} version number of `g` package
+ */
+export function getVersion() {
+  const cwd = process.cwd();
 
-  return `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+  const pkgRaw = fs.readFileSync(path.join(cwd, "package.json"));
+  const pkg = JSON.parse(pkgRaw);
+
+  return pkg.version;
 }
