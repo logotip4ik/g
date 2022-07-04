@@ -39,15 +39,20 @@ if (commandType === commands.VERSION) {
 
 if (commandType === commands.INIT)
   await createInitWithOptions(normalizedOptions).catch(() => process.exit());
+
 if (commandType === commands.UPDATE)
   await createUpdateWithOptionsAndType(normalizedOptions, commitType).catch(
     () => process.exit()
   );
+
 if (commandType === commands.LOG)
   await createLogWithOptions(normalizedOptions).catch(() => process.exit());
+
 if (commandType === commands.SYNC)
   await createSyncWithOptions(normalizedOptions).catch(() => process.exit());
+
 if (commandType === commands.PUSH)
   await createPushWithOptions(normalizedOptions).catch(() => process.exit());
+
 if (commandType === commands.PULL)
   await createPullWithOptions(normalizedOptions).catch(() => process.exit());
