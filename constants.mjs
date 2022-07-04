@@ -24,6 +24,9 @@ export const options = new Set([
   //
   "i",
   "include",
+  //
+  "o",
+  "origin",
 ]);
 
 export const currentBranchCommand = "git branch --show-current";
