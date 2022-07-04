@@ -15,6 +15,26 @@ $.quote = (...ev) => ev.join(" ");
  * @param {Options} options
  * @returns {Promise<void>} array of strings with which user commands will be executed
  */
+export async function createInitWithOptions(options) {
+  const initialBranchName =
+    process.argv[3] && !process.argv[3].startsWith("-")
+      ? process.argv[3]
+      : "master";
+
+  await $`echo 'git init -b ${initialBranchName}'`;
+
+  if (!options.include || options.include === true) await $`echo 'git add .'`;
+  else await $`echo 'git add ${options.include}'`;
+
+  if (!options.message || options.message === true)
+    await $`echo 'git commit "update"'`;
+  else await $`echo 'git commit "update: ${options.message}"'`;
+}
+
+/**
+ * @param {Options} options
+ * @returns {Promise<void>}
+ */
 export async function createUpdateWithOptions(options) {
   const currentBrach = (await $`git branch --show-current`).toString().trim();
 
@@ -43,7 +63,7 @@ export async function createUpdateWithOptions(options) {
 
 /**
  * @param {Options} _options
- * @returns {Promise<void>} array of strings with which user commands will be executed
+ * @returns {Promise<void>}
  */
 export async function createPushWithOptions(_options) {
   let origin = "";
