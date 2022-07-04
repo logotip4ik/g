@@ -62,6 +62,36 @@ export async function createUpdateWithOptions(options) {
 }
 
 /**
+ * @param {Options} options
+ * @returns {Promise<void>}
+ */
+export async function createFixWithOptions(options) {
+  const currentBrach = (await $`git branch --show-current`).toString().trim();
+
+  if (options.pull) {
+    if (typeof options.pull === "boolean")
+      await $`echo 'git pull origin ${currentBrach.toString()}'`;
+    else await $`echo 'git pull origin ${options.pull}'`;
+  }
+
+  if (!options.include || options.include === true) await $`echo 'git add .'`;
+  else await $`echo 'git add ${options.include}'`;
+
+  if (!options.message || options.message === true)
+    await $`echo 'git commit "fix"'`;
+  else await $`echo 'git commit "fix: ${options.message}"'`;
+
+  if (options.push) {
+    const branch =
+      typeof options.push === "string" ? options.push : currentBrach;
+    const origin =
+      typeof options.origin === "string" ? options.origin : "origin";
+
+    await $`echo 'git push ${origin} ${branch}'`;
+  }
+}
+
+/**
  * @param {Options} _options
  * @returns {Promise<void>}
  */
