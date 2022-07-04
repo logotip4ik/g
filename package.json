@@ -25,7 +25,7 @@
     "url": "https://github.com/logotip4ik/g"
   },
   "publishConfig": {
-    "@logotip4ik:registry": "https://npm.pkg.github.com/"
+    "registry": "https://npm.pkg.github.com"
   },
   "dependencies": {
     "chalk": "^5.0.1",
