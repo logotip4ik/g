@@ -23,17 +23,17 @@ Install it globally to use it where you want
 
 ### Available commands:
 
-- init - initialize git
-- update - create commit with `update` message (ex. `"update: ..."`)
-- fix - create commit with `fix` message (ex. `"fix: ..."`)
-- log - log to console current branch, last 5 commits and not staged files
-- sync - pull and push from origin, accepts the same arguments as pull
-- pull - pull from origin  
+- `init` - initialize git
+- `update` - create commit with `update` message (ex. `"update: ..."`)
+- `fix` - create commit with `fix` message (ex. `"fix: ..."`)
+- `log` - log to console current branch, last 5 commits and not staged files
+- `sync` - pull and push from origin, accepts the same arguments as pull
+- `pull` - pull from origin  
   can accept this arguments:
   - `g pull` - will pull from origin and current branch
   - `g pull v5` - will pull from origin and `v5` branch
   - `g pull fake-origin v5` - will pull from `fake-origin` and `v5` branch
-- push - push to the origin, accepts the same arguments as pull
+- `push` - push to the origin, accepts the same arguments as pull
 
 ### Examples
 
