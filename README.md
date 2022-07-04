@@ -4,6 +4,21 @@
 
 This command will help you to automate your git flow with ease
 
+## Installation
+
+Install it globally to use it where you want
+
+- npm
+
+  ```shell
+  $ npm i -g @logotip4ik/g
+  ```
+
+- yarn
+  ```shell
+  $ yarn global add @logotip4ik/g
+  ```
+
 ## Usage:
 
 ### Available commands:
