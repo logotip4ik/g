@@ -6,6 +6,7 @@ export const commands = {
   SYNC: "sync",
   PULL: "pull",
   PUSH: "push",
+  VERSION: "version",
 };
 
 export const defaultCommand = commands.UPDATE;
