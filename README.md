@@ -11,12 +11,12 @@ Install it globally to use it where you want
 - npm
 
   ```shell
-  $ npm i -g @logotip4ik/g
+  $ npm i -g @logotip4ik_/g
   ```
 
 - yarn
   ```shell
-  $ yarn global add @logotip4ik/g
+  $ yarn global add @logotip4ik_/g
   ```
 
 ## Usage:
