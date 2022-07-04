@@ -92,6 +92,24 @@ export async function createFixWithOptions(options) {
 }
 
 /**
+ * @param {Options} options
+ * @returns {Promise<void>}
+ */
+export async function createLogWithOptions(options) {
+  const currentBrach = (await $`git branch --show-current`).toString().trim();
+
+  if (options.pull) {
+    if (typeof options.pull === "boolean")
+      await $`echo 'git pull origin ${currentBrach.toString()}'`;
+    else await $`echo 'git pull origin ${options.pull}'`;
+  }
+
+  await $`git status -s`;
+
+  await $`git log --pretty="%h - %s"`;
+}
+
+/**
  * @param {Options} _options
  * @returns {Promise<void>}
  */
