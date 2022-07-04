@@ -1,25 +1,46 @@
 import fs from "fs";
 import chalk from "chalk";
 
-import { options, commands, defaultCommand } from "./constants.mjs";
+import {
+  options,
+  commands,
+  defaultCommand,
+  commitTypes,
+} from "./constants.mjs";
 import path from "path";
 
 /**
  * @param {NodeJS.Process.argv} argv
- * @returns {[string, {string: string}]}
+ * @returns {{ commandType:string, commitType: string, options: {string:string} }}
  */
 export function parseArgs(argv) {
   const _executable = argv[0];
   const _fileRunning = argv[1];
 
-  if (!argv[2].startsWith("-") && !commands[argv[2].toUpperCase()]) {
-    printError(`unknown command ${chalk.underline(argv[2])}`);
+  let userCommand = "";
+  let userCommitType = "";
+
+  let possibleCommitType = "";
+
+  if (argv[2].includes("!"))
+    possibleCommitType = argv[2].split("!")[0].toUpperCase();
+  else if (argv[2].includes("("))
+    possibleCommitType = argv[2].split("(")[0].toUpperCase();
+  else possibleCommitType = argv[2].toUpperCase();
+
+  if (!commands[argv[2].toUpperCase()] && commitTypes[possibleCommitType]) {
+    userCommand = defaultCommand;
+    userCommitType = argv[2];
+  } else if (
+    commands[argv[2].toUpperCase()] &&
+    !commitTypes[possibleCommitType]
+  ) {
+    userCommand = commands[argv[2].toUpperCase()];
+    userCommitType = "";
+  } else {
+    printError(`no commit type was specified`);
     process.exit();
   }
-
-  const userCommand = argv[2].startsWith("-")
-    ? defaultCommand
-    : commands[argv[2].toUpperCase()];
 
   const userOptions = {};
 
@@ -40,7 +61,11 @@ export function parseArgs(argv) {
     }
   }
 
-  return [userCommand, userOptions];
+  return {
+    commandType: userCommand,
+    commitType: userCommitType,
+    options: userOptions,
+  };
 }
 
 function getText(array, startI) {
@@ -82,30 +107,11 @@ export function normalizeOptions(args) {
 }
 
 /**
- * Checks for error in string, if finds logs error else will do nothing
- * @param {string} string
- * @returns {boolean} weather stdout has error or no
- */
-export function checkStdoutForError(string) {
-  let hasError = false;
-
-  if (string.includes("fatal")) {
-    hasError = true;
-
-    printError(string);
-  }
-
-  return hasError;
-}
-
-/**
  * Prints error-like message into console
  * @param {string[]} message
  */
 export function printError(...message) {
-  const m = " " + message.join(" ") + " ";
-
-  console.log(`$ ${chalk.redBright(m)}`);
+  console.log(`$ ${chalk.redBright(message.join(" "))}`);
 }
 
 /**
@@ -113,9 +119,7 @@ export function printError(...message) {
  * @param {string[]} message
  */
 export function printWarning(...message) {
-  const m = " " + message.join(" ") + " ";
-
-  console.log(`$ ${chalk.yellowBright(m)}`);
+  console.log(`$ ${message.join(" ")}`);
 }
 
 /**
