@@ -103,7 +103,7 @@ export function checkStdoutForError(string) {
 export function printError(...message) {
   const m = " " + message.join(" ") + " ";
 
-  console.log(`$ ${chalk.bgRedBright(m)}`);
+  console.log(`$ ${chalk.redBright(m)}`);
 }
 
 /**
@@ -113,7 +113,7 @@ export function printError(...message) {
 export function printWarning(...message) {
   const m = " " + message.join(" ") + " ";
 
-  console.log(`$ ${chalk.bgYellowBright(m)}`);
+  console.log(`$ ${chalk.yellowBright(m)}`);
 }
 
 export function getCurrentTime() {
