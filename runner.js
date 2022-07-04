@@ -21,14 +21,14 @@ export async function createInitWithOptions(options) {
       ? process.argv[3]
       : "master";
 
-  await $`echo 'git init -b ${initialBranchName}'`;
+  await $`git init -b ${initialBranchName}`;
 
-  if (!options.include || options.include === true) await $`echo 'git add .'`;
-  else await $`echo 'git add ${options.include}'`;
+  if (!options.include || options.include === true) await $`git add .`;
+  else await $`git add ${options.include}`;
 
   if (!options.message || options.message === true)
-    await $`echo 'git commit "update"'`;
-  else await $`echo 'git commit "update: ${options.message}"'`;
+    await $`git commit -m "init"`;
+  else await $`git commit -m "init: ${options.message}"`;
 }
 
 /**
@@ -40,16 +40,16 @@ export async function createUpdateWithOptions(options) {
 
   if (options.pull) {
     if (typeof options.pull === "boolean")
-      await $`echo 'git pull origin ${currentBrach.toString()}'`;
-    else await $`echo 'git pull origin ${options.pull}'`;
+      await $`git pull origin ${currentBrach.toString()}`;
+    else await $`git pull origin ${options.pull}`;
   }
 
-  if (!options.include || options.include === true) await $`echo 'git add .'`;
-  else await $`echo 'git add ${options.include}'`;
+  if (!options.include || options.include === true) await $`git add .`;
+  else await $`git add ${options.include}`;
 
   if (!options.message || options.message === true)
-    await $`echo 'git commit "update"'`;
-  else await $`echo 'git commit "update: ${options.message}"'`;
+    await $`git commit -m "update"`;
+  else await $`git commit -m "update: ${options.message}"`;
 
   if (options.push) {
     const branch =
@@ -57,7 +57,7 @@ export async function createUpdateWithOptions(options) {
     const origin =
       typeof options.origin === "string" ? options.origin : "origin";
 
-    await $`echo 'git push ${origin} ${branch}'`;
+    await $`git push ${origin} ${branch}`;
   }
 }
 
@@ -70,16 +70,16 @@ export async function createFixWithOptions(options) {
 
   if (options.pull) {
     if (typeof options.pull === "boolean")
-      await $`echo 'git pull origin ${currentBrach.toString()}'`;
-    else await $`echo 'git pull origin ${options.pull}'`;
+      await $`git pull origin ${currentBrach.toString()}`;
+    else await $`git pull origin ${options.pull}`;
   }
 
-  if (!options.include || options.include === true) await $`echo 'git add .'`;
-  else await $`echo 'git add ${options.include}'`;
+  if (!options.include || options.include === true) await $`git add .`;
+  else await $`git add ${options.include}`;
 
   if (!options.message || options.message === true)
-    await $`echo 'git commit "fix"'`;
-  else await $`echo 'git commit "fix: ${options.message}"'`;
+    await $`git commit -m "fix"`;
+  else await $`git commit -m "fix: ${options.message}"`;
 
   if (options.push) {
     const branch =
@@ -87,7 +87,7 @@ export async function createFixWithOptions(options) {
     const origin =
       typeof options.origin === "string" ? options.origin : "origin";
 
-    await $`echo 'git push ${origin} ${branch}'`;
+    await $`git push ${origin} ${branch}`;
   }
 }
 
@@ -100,8 +100,8 @@ export async function createLogWithOptions(options) {
 
   if (options.pull) {
     if (typeof options.pull === "boolean")
-      await $`echo 'git pull origin ${currentBrach.toString()}'`;
-    else await $`echo 'git pull origin ${options.pull}'`;
+      await $`git pull origin ${currentBrach.toString()}`;
+    else await $`git pull origin ${options.pull}`;
   }
 
   await $`git status -s`;
@@ -152,7 +152,7 @@ export async function createPullWithOptions(_options) {
     branch = process.argv[4].trim();
   }
 
-  await $`echo 'git pull ${origin} ${branch}'`;
+  await $`git pull ${origin} ${branch}`;
 }
 
 /**
@@ -188,5 +188,5 @@ export async function createPushWithOptions(_options) {
     branch = process.argv[4].trim();
   }
 
-  await $`echo 'git push ${origin} ${branch}'`;
+  await $`git push ${origin} ${branch}`;
 }
