@@ -4,8 +4,7 @@ import chalk from "chalk";
 import { commands } from "./constants.mjs";
 import {
   createInitWithOptions,
-  createUpdateWithOptions,
-  createFixWithOptions,
+  createUpdateWithOptionsAndType,
   createLogWithOptions,
   createSyncWithOptions,
   createPushWithOptions,
