@@ -126,9 +126,9 @@ export function printWarning(...message) {
  * @returns {string} version number of `g` package
  */
 export function getVersion() {
-  const cwd = process.cwd();
+  const pkgDir = path.dirname(process.argv[1]);
 
-  const pkgRaw = fs.readFileSync(path.join(cwd, "package.json"));
+  const pkgRaw = fs.readFileSync(path.join(pkgDir, "package.json"));
   const pkg = JSON.parse(pkgRaw);
 
   return pkg.version;
