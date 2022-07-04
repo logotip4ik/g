@@ -1,53 +1,78 @@
-import { execSync } from "child_process";
+import { $ } from "zx";
 
-import { currentBranchCommand } from "./constants.mjs";
-import { checkStdoutForError } from "./utils.mjs";
+$.quote = (...ev) => ev.join(" ");
 
 /**
- * @param {object} options
- * @param {boolean} options.pull
- * @param {boolean} options.push
- * @param {string} options.include
- * @param {string} options.message
- * @returns {string[]} array of strings with which user commands will be executed
+ * @typedef {object} Options
+ * @property {boolean | string | null} options.pull
+ * @property {boolean | string | null} options.push
+ * @property {boolean | string | null} options.include
+ * @property {boolean | string | null} options.message
+ * @property {boolean | string | null} options.origin
  */
-export function createUpdateWithOptions(options) {
-  const currentBrach = runCommand(currentBranchCommand);
-  const commands = [];
+
+/**
+ * @param {Options} options
+ * @returns {Promise<void>} array of strings with which user commands will be executed
+ */
+export async function createUpdateWithOptions(options) {
+  const currentBrach = (await $`git branch --show-current`).toString().trim();
 
   if (options.pull) {
     if (typeof options.pull === "boolean")
-      commands.push(`git pull origin ${currentBrach}`);
-    else commands.push(`git pull origin ${options.pull}`);
+      await $`echo 'git pull origin ${currentBrach.toString()}'`;
+    else await $`echo 'git pull origin ${options.pull}'`;
   }
 
-  if (!options.include || options.include === true) commands.push(`git add .`);
-  else commands.push(`git add ${options.include}`);
+  if (!options.include || options.include === true) await $`echo 'git add .'`;
+  else await $`echo 'git add ${options.include}'`;
 
   if (!options.message || options.message === true)
-    commands.push(`git commit "update"`);
-  else commands.push(`git commit "update:${options.message}"`);
+    await $`echo 'git commit "update"'`;
+  else await $`echo 'git commit "update: ${options.message}"'`;
 
   if (options.push) {
-    if (typeof options.push === "boolean")
-      commands.push(`git push origin ${currentBrach}`);
-    else commands.push(`git push origin ${options.push}`);
-  }
+    const branch =
+      typeof options.push === "string" ? options.push : currentBrach;
+    const origin =
+      typeof options.origin === "string" ? options.origin : "origin";
 
-  return commands;
+    await $`echo 'git push ${origin} ${branch}'`;
+  }
 }
 
 /**
- * @param {string} command command to run in process
+ * @param {Options} _options
+ * @returns {Promise<void>} array of strings with which user commands will be executed
  */
-export function runCommand(command) {
-  const result = String(execSync(command)).trim();
+export async function createPushWithOptions(_options) {
+  let origin = "";
+  let branch = "";
 
-  const error = checkStdoutForError(result);
-
-  if (error) {
-    process.exit();
+  // g push
+  if (
+    (!process.argv[3] || process.argv[3].startsWith("-")) &&
+    (!process.argv[4] || process.argv[4].startsWith("-"))
+  ) {
+    origin = "origin";
+    branch = await $`git branch --show-current`;
+  }
+  // g push v5
+  else if (
+    !process.argv[3].startsWith("-") &&
+    (!process.argv[4] || process.argv[4].startsWith("-"))
+  ) {
+    origin = "origin";
+    branch = process.argv[3];
+  }
+  // g push master v5
+  else if (
+    !process.argv[3].startsWith("-") &&
+    !process.argv[4].startsWith("-")
+  ) {
+    origin = process.argv[3].trim();
+    branch = process.argv[4].trim();
   }
 
-  return result;
+  await $`echo 'git push ${origin} ${branch}'`;
 }
