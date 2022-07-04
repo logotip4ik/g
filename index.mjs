@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import chalk from "chalk";
 import { commands } from "./constants.mjs";
 import {
   createInitWithOptions,
@@ -10,7 +11,12 @@ import {
   createPushWithOptions,
   createPullWithOptions,
 } from "./runner.js";
-import { parseArgs, normalizeOptions, printError } from "./utils.mjs";
+import {
+  parseArgs,
+  normalizeOptions,
+  printError,
+  getVersion,
+} from "./utils.mjs";
 
 const ARGV = process.argv;
 
@@ -22,6 +28,14 @@ if (ARGV.length <= 2) {
 
 const [command, options] = parseArgs(ARGV);
 const normalizedOptions = normalizeOptions(options);
+
+if (command === commands.VERSION) {
+  const version = getVersion();
+
+  console.log(`$ ${chalk.greenBright("g")} at: ${version}`);
+
+  process.exit();
+}
 
 if (command === commands.INIT)
   await createInitWithOptions(normalizedOptions).catch(() => process.exit());
