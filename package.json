@@ -8,7 +8,8 @@
   ],
   "author": "Bogdan Kostyuk <bogdankostyuk12@gmail.com>",
   "scripts": {
-    "test": "xv tests"
+    "test": "xv tests",
+    "release": "bumpp"
   },
   "bin": {
     "g": "index.mjs"
@@ -26,6 +27,7 @@
     "zx": "^7.0.7"
   },
   "devDependencies": {
+    "bumpp": "^8.2.1",
     "xv": "^1.1.1"
   }
 }
