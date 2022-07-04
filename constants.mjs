@@ -1,12 +1,25 @@
 export const commands = {
   INIT: "init",
   UPDATE: "update",
-  FIX: "fix",
   LOG: "log",
   SYNC: "sync",
   PULL: "pull",
   PUSH: "push",
   VERSION: "version",
+};
+
+export const commitTypes = {
+  FEAT: "feat", // Features
+  FIX: "fix", // Bug Fixes
+  DOCS: "docs", // Documentation
+  STYLE: "style", // Styles
+  REFACTOR: "refactor", // Code Refactoring
+  PERF: "perf", // Performance Improvements
+  TEST: "test", // Tests
+  BUILD: "build", // Builds
+  CI: "ci", // Continuous Integrations
+  CHORE: "chore", // Chores
+  REVERT: "revert", // Reverts
 };
 
 export const defaultCommand = commands.UPDATE;
