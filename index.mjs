@@ -41,8 +41,6 @@ if (command === commands.INIT)
   await createInitWithOptions(normalizedOptions).catch(() => process.exit());
 if (command === commands.UPDATE)
   await createUpdateWithOptions(normalizedOptions).catch(() => process.exit());
-if (command === commands.FIX)
-  await createFixWithOptions(normalizedOptions).catch(() => process.exit());
 if (command === commands.LOG)
   await createLogWithOptions(normalizedOptions).catch(() => process.exit());
 if (command === commands.SYNC)
