@@ -26,10 +26,10 @@ if (ARGV.length <= 2) {
   process.exit();
 }
 
-const [command, options] = parseArgs(ARGV);
+const { commandType, commitType, options } = parseArgs(ARGV);
 const normalizedOptions = normalizeOptions(options);
 
-if (command === commands.VERSION) {
+if (commandType === commands.VERSION) {
   const version = getVersion();
 
   console.log(`$ ${chalk.greenBright("g")} at: ${version}`);
@@ -37,15 +37,17 @@ if (command === commands.VERSION) {
   process.exit();
 }
 
-if (command === commands.INIT)
+if (commandType === commands.INIT)
   await createInitWithOptions(normalizedOptions).catch(() => process.exit());
-if (command === commands.UPDATE)
-  await createUpdateWithOptions(normalizedOptions).catch(() => process.exit());
-if (command === commands.LOG)
+if (commandType === commands.UPDATE)
+  await createUpdateWithOptionsAndType(normalizedOptions, commitType).catch(
+    () => process.exit()
+  );
+if (commandType === commands.LOG)
   await createLogWithOptions(normalizedOptions).catch(() => process.exit());
-if (command === commands.SYNC)
+if (commandType === commands.SYNC)
   await createSyncWithOptions(normalizedOptions).catch(() => process.exit());
-if (command === commands.PUSH)
+if (commandType === commands.PUSH)
   await createPushWithOptions(normalizedOptions).catch(() => process.exit());
-if (command === commands.PULL)
+if (commandType === commands.PULL)
   await createPullWithOptions(normalizedOptions).catch(() => process.exit());
