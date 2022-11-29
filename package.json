@@ -11,9 +11,7 @@
     "test": "xv tests",
     "release": "bumpp"
   },
-  "bin": {
-    "g": "index.mjs"
-  },
+  "bin": "bin/index.js",
   "main": "index.mjs",
   "version": "2.2.2",
   "license": "MIT",
@@ -29,5 +27,6 @@
   "devDependencies": {
     "bumpp": "^8.2.1",
     "xv": "^1.1.1"
-  }
+  },
+  "packageManager": "yarn@1.22.19"
 }
