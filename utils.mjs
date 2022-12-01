@@ -11,7 +11,7 @@ import path from "path";
 
 /**
  * @param {NodeJS.Process.argv} argv
- * @returns {{ commandType:string, commitType: string, options: {string:string} }}
+ * @returns {{ commandType: string, commitType: string, options: {[key: string]: string} }}
  */
 export function parseArgs(argv) {
   const _executable = argv[0];
@@ -128,7 +128,7 @@ export function printWarning(...message) {
 export function getVersion() {
   const pkgDir = path.dirname(process.argv[1]);
 
-  const pkgRaw = fs.readFileSync(path.join(pkgDir, "package.json"));
+  const pkgRaw = fs.readFileSync(path.join(pkgDir, "..", "package.json"));
   const pkg = JSON.parse(pkgRaw);
 
   return pkg.version;
