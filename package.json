@@ -11,7 +11,9 @@
     "test": "xv tests",
     "release": "bumpp"
   },
-  "bin": "bin/index.js",
+  "bin": {
+    "g": "bin/index.mjs"
+  },
   "main": "index.mjs",
   "version": "2.2.2",
   "license": "MIT",
