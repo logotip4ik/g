@@ -15,7 +15,7 @@
     "g": "bin/index.mjs"
   },
   "main": "index.mjs",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "license": "MIT",
   "type": "module",
   "repository": {
