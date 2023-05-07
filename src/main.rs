@@ -2,6 +2,7 @@ use clap::{Parser, Subcommand};
 use std::{fmt, env, process};
 
 use rustygit::{Repository, error::GitError};
+use spinners::{Spinner, Spinners};
 
 #[derive(Parser)]
 #[command(name = "g")]
@@ -143,17 +144,30 @@ fn main() {
 }
 
 fn pull_from_origin(repo: &Repository, remote: &String, current_branch: &String) {
-    match repo.cmd(vec!["pull", remote, current_branch]) {
-        Ok(..) => {},
+    let args = vec!["pull", remote, current_branch];
+    
+    let mut spinner = Spinner::new(Spinners::Dots12, args.join(" "));
+    
+    match repo.cmd(args) {
+        Ok(..) => { },
         Err(error) => early_exit(error)
     };
+
+    // NOTE: need another space because spinner itself is two chars wide 
+    spinner.stop_with_symbol(" ✔");
 }
 
 fn push_to_origin(repo: &Repository, remote: &String, current_branch: &String) {
-    match repo.cmd(vec!["push", remote, current_branch]) {
-        Ok(..) => {},
+    let args = vec!["push", remote, current_branch];
+
+    let mut spinner = Spinner::new(Spinners::Dots12, args.join(" "));
+
+    match repo.cmd(args) {
+        Ok(..) => { },
         Err(error) => early_exit(error)
     }
+
+    spinner.stop_with_symbol(" ✔");
 }
 
 fn log(repo: &Repository) {
@@ -187,7 +201,9 @@ fn log(repo: &Repository) {
 fn commit_files_with_message(repo: &Repository, files: &String, message: &String) {
     dbg!(files);
     dbg!(message);
-    
+
+    let mut spinner = Spinner::new(Spinners::Dots12, String::from("committing files"));
+
     match repo.cmd(vec!["add", files]) {
         Ok(..) => {},
         Err(error) => early_exit(error)
@@ -197,6 +213,8 @@ fn commit_files_with_message(repo: &Repository, files: &String, message: &String
         Ok(..) => {},
         Err(error) => early_exit(error)
     }
+
+    spinner.stop_with_symbol(" ✔");
 }
 
 fn generate_commit_message(commit_type: &CommitType, message: &Option<String>) -> String {
