@@ -1,5 +1,7 @@
 use clap::{Parser, Subcommand};
-use std::fmt;
+use std::{fmt, env, process};
+
+use rustygit::{Repository, error::GitError};
 
 #[derive(Parser)]
 #[command(name = "g")]
@@ -17,11 +19,23 @@ enum Commands {
     /// show uncommitted changes and previous commits
     Log {},
     /// pull changes from origin
-    Pull {},
+    Pull {
+        /// which remote to use
+        #[arg(short, long, default_value = "origin")]
+        remote: Option<String>,
+    },
     /// push changes from origin
-    Push {},
+    Push {
+        /// which remote to use
+        #[arg(short, long, default_value = "origin")]
+        remote: Option<String>,
+    },
     /// push and pull changes from origin
-    Sync {},
+    Sync {
+        /// which remote to use
+        #[arg(short, long, default_value = "origin")]
+        remote: Option<String>,
+    },
     /// commit files with message
     Cmt {
         #[command(subcommand)]
@@ -34,6 +48,10 @@ enum Commands {
         /// message body
         #[arg(short, long, global = true)]
         message: Option<String>,
+
+        /// which remote to use
+        #[arg(short, long, global = true, default_value = "origin")]
+        remote: Option<String>,
 
         /// push to origin after commit
         #[arg(short, long, default_value_t = false, global = true)]
@@ -78,59 +96,107 @@ impl fmt::Display for CommitType {
 }
 
 fn main() {
+    let current_path = env::current_dir();
+    let repo = Repository::new(current_path.expect("current dir is broken"));
+    
+    let branches = repo.cmd_out(vec!["rev-parse", "--abbrev-ref", "HEAD"]).expect("no current branches");
+    let current_branch = branches.first().expect("no current branch");
+
     let cli = Cli::parse();
 
     match &cli.command {
         Commands::Log {} => {
-            log();
+            log(&repo);
         }
-        Commands::Pull {} => {
-            pull_from_origin();
+        Commands::Pull { remote } => {
+            pull_from_origin(&repo, expect_remote(remote), current_branch);
         }
-        Commands::Push {} => {
-            push_to_origin();
+        Commands::Push { remote } => {
+            push_to_origin(&repo, expect_remote(remote), current_branch);
         }
-        Commands::Sync {} => {
-            pull_from_origin();
-            push_to_origin();
+        Commands::Sync { remote } => {
+            pull_from_origin(&repo, expect_remote(remote), current_branch);
+            push_to_origin(&repo, expect_remote(remote), current_branch);
         }
         Commands::Cmt {
             commit_type,
             files,
             message,
+            remote,
             push,
             sync,
         } => {
             if *sync {
-                pull_from_origin();
+                pull_from_origin(&repo, expect_remote(remote), current_branch);
             }
 
             let m = generate_commit_message(commit_type, message);
             let files_string = files.join(", ");
 
-            commit_files_with_message(&files_string, &m);
+            commit_files_with_message(&repo, &files_string, &m);
 
             if *push || *sync {
-                push_to_origin();
+                push_to_origin(&repo, expect_remote(remote), current_branch);
             }
         },
     }
 }
 
-fn pull_from_origin() {
-    println!("pull command")
+fn pull_from_origin(repo: &Repository, remote: &String, current_branch: &String) {
+    match repo.cmd(vec!["pull", remote, current_branch]) {
+        Ok(..) => {},
+        Err(error) => early_exit(error)
+    };
 }
 
-fn push_to_origin() {
-    println!("push command")
+fn push_to_origin(repo: &Repository, remote: &String, current_branch: &String) {
+    match repo.cmd(vec!["push", remote, current_branch]) {
+        Ok(..) => {},
+        Err(error) => early_exit(error)
+    }
 }
 
-fn log() {
-    println!("log command")
+fn log(repo: &Repository) {
+    match repo.cmd_out(vec!["log", "--pretty=\"%h - %an - %s\"", "-5"]) {
+        Ok(commits) => {
+            let commits_string = commits
+                .iter()
+                .map(|s| format!("  {}", s))
+                .collect::<Vec<String>>()
+                .join("\n")
+                .replace("\"", "");
+        
+            println!("Last 5 commits:\n{}", commits_string);
+        },
+        Err(error) => early_exit(error)
+    }
+    
+    match repo.list_modified() {
+        Ok(files) => {
+            println!();
+            println!("Modified files:");
+
+            for file in files {
+                println!("  {}", file);
+            }
+        },
+        Err(error) => early_exit(error)
+    }
 }
 
-fn commit_files_with_message(files: &String, message: &String) {
-    println!("Will commit files: {} with message: {}", files, message);
+fn commit_files_with_message(repo: &Repository, files: &String, message: &String) {
+    dbg!(files);
+    dbg!(message);
+    
+    match repo.cmd(vec!["add", files]) {
+        Ok(..) => {},
+        Err(error) => early_exit(error)
+    }
+    
+    match repo.cmd(vec!["commit", "-m", message]) {
+        Ok(..) => {},
+        Err(error) => early_exit(error)
+    }
 }
 
 fn generate_commit_message(commit_type: &CommitType, message: &Option<String>) -> String {
@@ -140,5 +206,17 @@ fn generate_commit_message(commit_type: &CommitType, message: &Option<String>) -
         format!("{}: {}", commit_type_str, msg.trim())
     } else {
         commit_type_str
+    }
+}
+
+fn early_exit(e: GitError) {
+    eprintln!("{}", e);
+    process::exit(-1);
+}
+
+fn expect_remote(remote: &Option<String>) -> &String {
+    match remote {
+        Some(s) => s,
+        None => panic!("remote is not defined"),
     }
 }
