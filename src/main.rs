@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use std::{fmt};
+use std::fmt;
 
 #[derive(Parser)]
 #[command(name = "g")]
@@ -109,7 +109,7 @@ fn main() {
 
             commit_files_with_message(files, &m);
 
-            if *push {
+            if *push || *sync {
                 push_to_origin();
             }
         },
@@ -129,7 +129,7 @@ fn log() {
 }
 
 fn commit_files_with_message(files: &String, message: &String) {
-    print!("Will commit files: {} with message: {}", files, message);
+    println!("Will commit files: {} with message: {}", files, message);
 }
 
 fn generate_commit_message(commit_type: &CommitType, message: &Option<String>) -> String {
