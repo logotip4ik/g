@@ -96,13 +96,13 @@ impl fmt::Display for CommitType {
 }
 
 fn main() {
+    let cli = Cli::parse();
+
     let current_path = env::current_dir();
     let repo = Repository::new(current_path.expect("current dir is broken"));
     
     let branches = repo.cmd_out(vec!["rev-parse", "--abbrev-ref", "HEAD"]).expect("no current branches");
     let current_branch = branches.first().expect("no current branch");
-
-    let cli = Cli::parse();
 
     match &cli.command {
         Commands::Log {} => {
