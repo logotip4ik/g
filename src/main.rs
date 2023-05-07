@@ -28,8 +28,8 @@ enum Commands {
         commit_type: CommitType,
 
         /// files to include in commit
-        #[arg(short, long, default_value = ".", global = true)]
-        files: String,
+        #[arg(default_value = ".", global = true)]
+        files: Vec<String>,
 
         /// message body
         #[arg(short, long, global = true)]
@@ -106,8 +106,9 @@ fn main() {
             }
 
             let m = generate_commit_message(commit_type, message);
+            let files_string = files.join(", ");
 
-            commit_files_with_message(files, &m);
+            commit_files_with_message(&files_string, &m);
 
             if *push || *sync {
                 push_to_origin();
