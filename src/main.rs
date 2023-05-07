@@ -8,7 +8,7 @@ use spinners::{Spinner, Spinners};
 #[command(name = "g")]
 #[command(about = "simplify your git flow")]
 #[command(long_about = None)]
-#[command(version = "1.0.0")]
+#[command(version = "1.0.1")]
 #[command(propagate_version = true)]
 struct Cli {
     #[command(subcommand)]
