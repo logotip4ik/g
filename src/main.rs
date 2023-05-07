@@ -199,9 +199,6 @@ fn log(repo: &Repository) {
 }
 
 fn commit_files_with_message(repo: &Repository, files: &String, message: &String) {
-    dbg!(files);
-    dbg!(message);
-
     let mut spinner = Spinner::new(Spinners::Dots, format!("committing {}", files));
 
     match repo.cmd(vec!["add", files]) {
