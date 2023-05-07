@@ -146,7 +146,7 @@ fn main() {
 fn pull_from_origin(repo: &Repository, remote: &String, current_branch: &String) {
     let args = vec!["pull", remote, current_branch];
     
-    let mut spinner = Spinner::new(Spinners::Dots12, args.join(" "));
+    let mut spinner = Spinner::new(Spinners::Dots, args.join(" "));
     
     match repo.cmd(args) {
         Ok(..) => { },
@@ -154,20 +154,20 @@ fn pull_from_origin(repo: &Repository, remote: &String, current_branch: &String)
     };
 
     // NOTE: need another space because spinner itself is two chars wide 
-    spinner.stop_with_symbol(" ✔");
+    spinner.stop_with_symbol("✔");
 }
 
 fn push_to_origin(repo: &Repository, remote: &String, current_branch: &String) {
     let args = vec!["push", remote, current_branch];
 
-    let mut spinner = Spinner::new(Spinners::Dots12, args.join(" "));
+    let mut spinner = Spinner::new(Spinners::Dots, args.join(" "));
 
     match repo.cmd(args) {
         Ok(..) => { },
         Err(error) => early_exit(error)
     }
 
-    spinner.stop_with_symbol(" ✔");
+    spinner.stop_with_symbol("✔");
 }
 
 fn log(repo: &Repository) {
@@ -202,7 +202,7 @@ fn commit_files_with_message(repo: &Repository, files: &String, message: &String
     dbg!(files);
     dbg!(message);
 
-    let mut spinner = Spinner::new(Spinners::Dots12, format!("committing {}", files));
+    let mut spinner = Spinner::new(Spinners::Dots, format!("committing {}", files));
 
     match repo.cmd(vec!["add", files]) {
         Ok(..) => {},
@@ -214,7 +214,7 @@ fn commit_files_with_message(repo: &Repository, files: &String, message: &String
         Err(error) => early_exit(error)
     }
 
-    spinner.stop_with_symbol(" ✔");
+    spinner.stop_with_symbol("✔");
 }
 
 fn generate_commit_message(commit_type: &CommitType, message: &Option<String>) -> String {
