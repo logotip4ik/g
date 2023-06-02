@@ -132,7 +132,7 @@ fn main() {
             }
 
             let m = generate_commit_message(commit_type, message);
-            let files_string = files.join(", ");
+            let files_string = files.join(" ");
 
             commit_files_with_message(&repo, &files_string, &m);
 
