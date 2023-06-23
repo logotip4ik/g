@@ -132,9 +132,8 @@ fn main() {
             }
 
             let m = generate_commit_message(commit_type, message);
-            let files_string = files.join(" ");
 
-            commit_files_with_message(&repo, &files_string, &m);
+            commit_files_with_message(&repo, files, &m);
 
             if *push || *sync {
                 push_to_origin(&repo, expect_remote(remote), current_branch);
@@ -198,10 +197,17 @@ fn log(repo: &Repository) {
     }
 }
 
-fn commit_files_with_message(repo: &Repository, files: &String, message: &String) {
-    let mut spinner = Spinner::new(Spinners::Dots, format!("committing {}", files));
+fn commit_files_with_message(repo: &Repository, files: &Vec<String>, message: &String) {
+    let mut spinner = Spinner::new(Spinners::Dots, format!("committing {}", files.join(", ")));
 
-    match repo.cmd(vec!["add", files]) {
+    let command = "add".into();
+    let mut args: Vec<&String> = vec![&command];
+
+    args.extend(files);
+
+    // args: ['add', 'file1', 'file2']
+
+    match repo.cmd(args) {
         Ok(..) => {},
         Err(error) => early_exit(error)
     }
