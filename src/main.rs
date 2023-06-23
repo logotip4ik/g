@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand};
-use std::{fmt, env, process};
+use std::{env, fmt, process};
 
-use rustygit::{Repository, error::GitError};
+use rustygit::{error::GitError, Repository};
 use spinners::{Spinner, Spinners};
 
 #[derive(Parser)]
@@ -10,6 +10,7 @@ use spinners::{Spinner, Spinners};
 #[command(long_about = None)]
 #[command(version = "1.0.1")]
 #[command(propagate_version = true)]
+
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -18,7 +19,7 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     /// show uncommitted changes and previous commits
-    Log {},
+    Log,
     /// pull changes from origin
     Pull {
         /// which remote to use
@@ -67,27 +68,27 @@ enum Commands {
 #[derive(Debug, Subcommand)]
 enum CommitType {
     /// Changes that affect the build system like gulp, npm, etc
-    Build {},
+    Build,
     /// Changes made to the CI configuration like Travis, Circle, Actions
-    Ci {},
+    Ci,
     /// Other changes that don't modify src or test files
-    Chore {},
+    Chore,
     /// Documentation only changes
-    Docs {},
+    Docs,
     /// A new feature
-    Feat {},
+    Feat,
     /// Fixed a bug
-    Fix {},
+    Fix,
     /// Code changes that improve performance
-    Perf {},
+    Perf,
     /// A code change that's not mainly a bug or new feature
-    Refactor {},
+    Refactor,
     /// Revert a previous commit
-    Revert {},
+    Revert,
     /// Changes to styling like white space, formatting, semi-colons)
-    Style {},
+    Style,
     /// Add or fix tests
-    Test {},
+    Test,
 }
 
 impl fmt::Display for CommitType {
@@ -101,8 +102,10 @@ fn main() {
 
     let current_path = env::current_dir();
     let repo = Repository::new(current_path.expect("current dir is broken"));
-    
-    let branches = repo.cmd_out(vec!["rev-parse", "--abbrev-ref", "HEAD"]).expect("no current branches");
+
+    let branches = repo
+        .cmd_out(vec!["rev-parse", "--abbrev-ref", "HEAD"])
+        .expect("no current branches");
     let current_branch = branches.first().expect("no current branch");
 
     match &cli.command {
@@ -138,21 +141,21 @@ fn main() {
             if *push || *sync {
                 push_to_origin(&repo, expect_remote(remote), current_branch);
             }
-        },
+        }
     }
 }
 
 fn pull_from_origin(repo: &Repository, remote: &String, current_branch: &String) {
     let args = vec!["pull", remote, current_branch];
-    
+
     let mut spinner = Spinner::new(Spinners::Dots, args.join(" "));
-    
+
     match repo.cmd(args) {
-        Ok(..) => { },
-        Err(error) => early_exit(error)
+        Ok(..) => {}
+        Err(error) => early_exit(error),
     };
 
-    // NOTE: need another space because spinner itself is two chars wide 
+    // NOTE: need another space because spinner itself is two chars wide
     spinner.stop_with_symbol("✔");
 }
 
@@ -162,8 +165,8 @@ fn push_to_origin(repo: &Repository, remote: &String, current_branch: &String) {
     let mut spinner = Spinner::new(Spinners::Dots, args.join(" "));
 
     match repo.cmd(args) {
-        Ok(..) => { },
-        Err(error) => early_exit(error)
+        Ok(..) => {}
+        Err(error) => early_exit(error),
     }
 
     spinner.stop_with_symbol("✔");
@@ -178,12 +181,12 @@ fn log(repo: &Repository) {
                 .collect::<Vec<String>>()
                 .join("\n")
                 .replace("\"", "");
-        
+
             println!("Last 5 commits:\n{}", commits_string);
-        },
-        Err(error) => early_exit(error)
+        }
+        Err(error) => early_exit(error),
     }
-    
+
     match repo.list_modified() {
         Ok(files) => {
             println!();
@@ -192,8 +195,8 @@ fn log(repo: &Repository) {
             for file in files {
                 println!("  {}", file);
             }
-        },
-        Err(error) => early_exit(error)
+        }
+        Err(error) => early_exit(error),
     }
 }
 
@@ -201,21 +204,16 @@ fn commit_files_with_message(repo: &Repository, files: &Vec<String>, message: &S
     let mut spinner = Spinner::new(Spinners::Dots, format!("committing {}", files.join(", ")));
 
     let command = "add".into();
+
     let mut args: Vec<&String> = vec![&command];
 
     args.extend(files);
 
     // args: ['add', 'file1', 'file2']
 
-    match repo.cmd(args) {
-        Ok(..) => {},
-        Err(error) => early_exit(error)
-    }
-    
-    match repo.cmd(vec!["commit", "-m", message]) {
-        Ok(..) => {},
-        Err(error) => early_exit(error)
-    }
+    repo.cmd(args).ok();
+
+    repo.cmd(vec!["commit", "-m", message]).ok();
 
     spinner.stop_with_symbol("✔");
 }
