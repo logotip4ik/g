@@ -1,8 +1,9 @@
 use clap::{Parser, Subcommand};
-use std::{env, fmt, process};
+use std::{env, fmt};
 
-use rustygit::{error::GitError, Repository};
+use rustygit::{Repository};
 use spinners::{Spinner, Spinners};
+use colored::*;
 
 #[derive(Parser)]
 #[command(name = "g")]
@@ -146,74 +147,90 @@ fn main() {
 }
 
 fn pull_from_origin(repo: &Repository, remote: &String, current_branch: &String) {
-    let args = vec!["pull", remote, current_branch];
+    let message = format!("pull {} from {}", current_branch.green(), remote.green());
+    let mut spinner = Spinner::new(Spinners::Dots, message);
+    
+    let args = vec!["pull", remote, current_branch ];
+    
+    repo.cmd(args).ok();
 
-    let mut spinner = Spinner::new(Spinners::Dots, args.join(" "));
-
-    match repo.cmd(args) {
-        Ok(..) => {}
-        Err(error) => early_exit(error),
-    };
-
-    // NOTE: need another space because spinner itself is two chars wide
     spinner.stop_with_symbol("✔");
 }
 
 fn push_to_origin(repo: &Repository, remote: &String, current_branch: &String) {
+    let message = format!("push {} to {}", current_branch.green(), remote.green());
+    let mut spinner = Spinner::new(Spinners::Dots, message);
+    
     let args = vec!["push", remote, current_branch];
 
-    let mut spinner = Spinner::new(Spinners::Dots, args.join(" "));
-
-    match repo.cmd(args) {
-        Ok(..) => {}
-        Err(error) => early_exit(error),
-    }
+    repo.cmd(args).ok();
 
     spinner.stop_with_symbol("✔");
 }
 
 fn log(repo: &Repository) {
-    match repo.cmd_out(vec!["log", "--pretty=\"%h - %an - %s\"", "-5"]) {
-        Ok(commits) => {
-            let commits_string = commits
-                .iter()
-                .map(|s| format!("  {}", s))
-                .collect::<Vec<String>>()
-                .join("\n")
-                .replace("\"", "");
+    let commits = repo.cmd_out(vec!["log", "--pretty=\"%h - %an - %s\"", "-5"]).unwrap();
 
-            println!("Last 5 commits:\n{}", commits_string);
-        }
-        Err(error) => early_exit(error),
+    println!("\nLast 5 commits:");
+    for commit in commits {
+        let mut parts: Vec<String> = commit
+            .split(" - ")
+            .map(|s| s.replace("\"", "").into())
+            .collect();
+
+        // commit sha
+        parts[0] = parts[0].yellow().to_string();
+
+        let message: Vec<String> = parts[2].split(":").map(|s| s.into()).collect();
+
+        parts[2] = format!("{}:{}", message[0].bold(), message[1]);
+
+        println!("   {}", parts.join(" - "));
     }
 
-    match repo.list_modified() {
-        Ok(files) => {
-            println!();
-            println!("Modified files:");
+    println!("\nChanges:");
 
-            for file in files {
-                println!("  {}", file);
-            }
-        }
-        Err(error) => early_exit(error),
+    let modified: Vec<String> = repo.list_modified().unwrap();
+    let added: Vec<String> = repo.list_added().unwrap();
+    let untracked: Vec<String> = repo.list_untracked().unwrap();
+    let staged: Vec<String> = repo.cmd_out(vec!["diff", "--name-only", "--cached"])
+        .unwrap()
+        .iter()
+        .filter(|s| !added.contains(&s))
+        .map(|s| s.into())
+        .collect();
+    
+    for file in staged {
+        println!("{} {}", "M ".green(), file);
+    }
+
+    for file in modified {
+        println!("{} {}", " M".red(), file);
+    }
+
+    for file in added {
+        println!("{} {}", "A ".green(), file);
+    }
+
+    for file in untracked {
+        println!("{} {}", "??".red(), file);
     }
 }
 
-fn commit_files_with_message(repo: &Repository, files: &Vec<String>, message: &String) {
-    let mut spinner = Spinner::new(Spinners::Dots, format!("committing {}", files.join(", ")));
+fn commit_files_with_message(repo: &Repository, files: &Vec<String>, cmt_message: &String) {
+    let colored_files: Vec<String> = files.iter().map(|s| s.green().to_string()).collect();
+    let message = format!("committing {}", colored_files.join(", "));
+    let mut spinner = Spinner::new(Spinners::Dots, message);
 
-    let command = "add".into();
+    let mut args: Vec<String> = vec!["add".into(); files.len() + 1];
 
-    let mut args: Vec<&String> = vec![&command];
-
-    args.extend(files);
-
-    // args: ['add', 'file1', 'file2']
+    for idx in 0..files.len() {
+        args[1 + idx] = files[idx].to_owned();
+    }
 
     repo.cmd(args).ok();
 
-    repo.cmd(vec!["commit", "-m", message]).ok();
+    repo.cmd(vec!["commit", "-m", cmt_message]).ok();
 
     spinner.stop_with_symbol("✔");
 }
@@ -226,11 +243,6 @@ fn generate_commit_message(commit_type: &CommitType, message: &Option<String>) -
     } else {
         commit_type_str
     }
-}
-
-fn early_exit(e: GitError) {
-    eprintln!("{}", e);
-    process::exit(-1);
 }
 
 fn expect_remote(remote: &Option<String>) -> &String {
