@@ -9,7 +9,7 @@ use colored::*;
 #[command(name = "g")]
 #[command(about = "simplify your git flow")]
 #[command(long_about = None)]
-#[command(version = "1.0.1")]
+#[command(version = "1.0.2")]
 #[command(propagate_version = true)]
 
 struct Cli {
@@ -147,7 +147,7 @@ fn main() {
 }
 
 fn pull_from_origin(repo: &Repository, remote: &String, current_branch: &String) {
-    let message = format!("pull {} from {}", current_branch.green(), remote.green());
+    let message = format!("pull {} from {}", current_branch.green().bold(), remote.green().bold());
     let mut spinner = Spinner::new(Spinners::Dots, message);
     
     let args = vec!["pull", remote, current_branch ];
@@ -158,7 +158,7 @@ fn pull_from_origin(repo: &Repository, remote: &String, current_branch: &String)
 }
 
 fn push_to_origin(repo: &Repository, remote: &String, current_branch: &String) {
-    let message = format!("push {} to {}", current_branch.green(), remote.green());
+    let message = format!("push {} to {}", current_branch.green().bold(), remote.green().bold());
     let mut spinner = Spinner::new(Spinners::Dots, message);
     
     let args = vec!["push", remote, current_branch];
@@ -179,7 +179,7 @@ fn log(repo: &Repository) {
             .collect();
 
         // commit sha
-        parts[0] = parts[0].yellow().to_string();
+        parts[0] = parts[0].yellow().bold().to_string();
 
         let message: Vec<String> = parts[2].split(":").map(|s| s.into()).collect();
 
@@ -218,7 +218,7 @@ fn log(repo: &Repository) {
 }
 
 fn commit_files_with_message(repo: &Repository, files: &Vec<String>, cmt_message: &String) {
-    let colored_files: Vec<String> = files.iter().map(|s| s.green().to_string()).collect();
+    let colored_files: Vec<String> = files.iter().map(|s| s.green().bold().to_string()).collect();
     let message = format!("committing {}", colored_files.join(", "));
     let mut spinner = Spinner::new(Spinners::Dots, message);
 
