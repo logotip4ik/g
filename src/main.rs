@@ -219,7 +219,9 @@ fn log(repo: &Repository) {
 
 fn commit_files_with_message(repo: &Repository, files: &Vec<String>, cmt_message: &String) {
     let colored_files: Vec<String> = files.iter().map(|s| s.green().bold().to_string()).collect();
-    let message = format!("committing {}", colored_files.join(", "));
+
+    let message = format!("committing {} with message {}", colored_files.join(", "), cmt_message.bold());
+
     let mut spinner = Spinner::new(Spinners::Dots, message);
 
     let mut args: Vec<String> = vec!["add".into(); files.len() + 1];
