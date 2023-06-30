@@ -7,5 +7,6 @@ edition = "2021"
 
 [dependencies]
 clap = { versoin = "4.2.7", features = ["derive"]}
+colored = "2.0.0"
 rustygit = "0.5.0"
 spinners = "4.1.0"
