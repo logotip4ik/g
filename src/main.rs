@@ -1,9 +1,9 @@
 use clap::{Parser, Subcommand};
 use std::{env, fmt};
 
-use rustygit::{Repository};
-use spinners::{Spinner, Spinners};
 use colored::*;
+use rustygit::Repository;
+use spinners::{Spinner, Spinners};
 
 #[derive(Parser)]
 #[command(name = "g")]
@@ -147,20 +147,28 @@ fn main() {
 }
 
 fn pull_from_origin(repo: &Repository, remote: &String, current_branch: &String) {
-    let message = format!("pull {} from {}", current_branch.green().bold(), remote.green().bold());
+    let message = format!(
+        "pull {} from {}",
+        current_branch.green().bold(),
+        remote.green().bold()
+    );
     let mut spinner = Spinner::new(Spinners::Dots, message);
-    
-    let args = vec!["pull", remote, current_branch ];
-    
+
+    let args = vec!["pull", remote, current_branch];
+
     repo.cmd(args).ok();
 
     spinner.stop_with_symbol("✔");
 }
 
 fn push_to_origin(repo: &Repository, remote: &String, current_branch: &String) {
-    let message = format!("push {} to {}", current_branch.green().bold(), remote.green().bold());
+    let message = format!(
+        "push {} to {}",
+        current_branch.green().bold(),
+        remote.green().bold()
+    );
     let mut spinner = Spinner::new(Spinners::Dots, message);
-    
+
     let args = vec!["push", remote, current_branch];
 
     repo.cmd(args).ok();
@@ -169,7 +177,9 @@ fn push_to_origin(repo: &Repository, remote: &String, current_branch: &String) {
 }
 
 fn log(repo: &Repository) {
-    let commits = repo.cmd_out(vec!["log", "--pretty=\"%h - %an - %s\"", "-5"]).unwrap();
+    let commits = repo
+        .cmd_out(vec!["log", "--pretty=\"%h - %an - %s\"", "-5"])
+        .unwrap();
 
     println!("\nLast 5 commits:");
     for commit in commits {
@@ -193,13 +203,14 @@ fn log(repo: &Repository) {
     let modified: Vec<String> = repo.list_modified().unwrap();
     let added: Vec<String> = repo.list_added().unwrap();
     let untracked: Vec<String> = repo.list_untracked().unwrap();
-    let staged: Vec<String> = repo.cmd_out(vec!["diff", "--name-only", "--cached"])
+    let staged: Vec<String> = repo
+        .cmd_out(vec!["diff", "--name-only", "--cached"])
         .unwrap()
         .iter()
         .filter(|s| !added.contains(&s))
         .map(|s| s.into())
         .collect();
-    
+
     for file in staged {
         println!("{} {}", "M ".green(), file);
     }
@@ -222,8 +233,12 @@ fn commit_files_with_message(repo: &Repository, files: &Vec<String>, cmt_message
 
     let mut cmt_message_parts: Vec<String> = cmt_message.split(":").map(|s| s.into()).collect();
     cmt_message_parts[0] = cmt_message_parts[0].underline().to_string();
-    
-    let message = format!("committing {} with message \"{}\"", colored_files.join(", "), cmt_message_parts.join(":").green());
+
+    let message = format!(
+        "committing {} with message \"{}\"",
+        colored_files.join(", "),
+        cmt_message_parts.join(":").green().bold()
+    );
 
     let mut spinner = Spinner::new(Spinners::Dots, message);
 
